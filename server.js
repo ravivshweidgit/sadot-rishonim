@@ -422,6 +422,127 @@ app.get('/api/books/:bookId', (req, res) => {
     }
 });
 
+// API endpoint to save text file
+app.post('/api/save-text', async (req, res) => {
+    try {
+        const { bookId, page, text } = req.body;
+        
+        if (!bookId || page === undefined || !text) {
+            return res.status(400).json({ error: 'Missing required fields: bookId, page, text' });
+        }
+        
+        // Validate book exists
+        booksConfig = loadBooksConfig();
+        if (!booksConfig.books[bookId]) {
+            return res.status(404).json({ error: 'Book not found' });
+        }
+        
+        // Construct file path
+        const pageStr = String(page).padStart(3, '0');
+        const textPath = path.join(__dirname, 'books', bookId, 'text', `${pageStr}.txt`);
+        
+        // Check if file exists (try both padded and unpadded versions)
+        let fileExists = false;
+        try {
+            await fs.access(textPath);
+            fileExists = true;
+        } catch (e) {
+            // Try unpadded version
+            const pageNum = parseInt(page);
+            if (pageNum.toString() !== pageStr) {
+                const textPathNoPad = path.join(__dirname, 'books', bookId, 'text', `${pageNum}.txt`);
+                try {
+                    await fs.access(textPathNoPad);
+                    // If unpadded exists, use that path
+                    const actualPath = textPathNoPad;
+                    await fs.writeFile(actualPath, text, 'utf-8');
+                    // Refresh cache after saving
+                    await refreshTextCache();
+                    return res.json({ success: true, message: 'Text saved successfully' });
+                } catch (e2) {
+                    // Neither exists, create padded version
+                }
+            }
+        }
+        
+        // Write file (create directory if needed)
+        const textDir = path.dirname(textPath);
+        await fs.mkdir(textDir, { recursive: true });
+        await fs.writeFile(textPath, text, 'utf-8');
+        
+        // Refresh cache after saving
+        await refreshTextCache();
+        
+        res.json({ success: true, message: 'Text saved successfully' });
+    } catch (error) {
+        console.error('Error saving text:', error);
+        res.status(500).json({ error: 'Error saving text file', details: error.message });
+    }
+});
+
+// Verification status file path
+const VERIFICATION_FILE = path.join(__dirname, 'verification-status.json');
+
+// Load verification status
+async function loadVerificationStatus() {
+    try {
+        const data = await fs.readFile(VERIFICATION_FILE, 'utf-8');
+        return JSON.parse(data);
+    } catch (error) {
+        // File doesn't exist, return empty object
+        return {};
+    }
+}
+
+// Save verification status
+async function saveVerificationStatus(status) {
+    await fs.writeFile(VERIFICATION_FILE, JSON.stringify(status, null, 2), 'utf-8');
+}
+
+// API endpoint to get verification status for a page
+app.get('/api/verification/:bookId/:page', async (req, res) => {
+    try {
+        const { bookId, page } = req.params;
+        const status = await loadVerificationStatus();
+        
+        const key = `${bookId}:${page}`;
+        const verified = status[key] === true;
+        
+        res.json({ verified });
+    } catch (error) {
+        console.error('Error loading verification status:', error);
+        res.status(500).json({ error: 'Error loading verification status', details: error.message });
+    }
+});
+
+// API endpoint to set verification status for a page
+app.post('/api/verification', async (req, res) => {
+    try {
+        const { bookId, page, verified } = req.body;
+        
+        if (!bookId || page === undefined || verified === undefined) {
+            return res.status(400).json({ error: 'Missing required fields: bookId, page, verified' });
+        }
+        
+        // Validate book exists
+        booksConfig = loadBooksConfig();
+        if (!booksConfig.books[bookId]) {
+            return res.status(404).json({ error: 'Book not found' });
+        }
+        
+        const status = await loadVerificationStatus();
+        const key = `${bookId}:${page}`;
+        status[key] = verified === true;
+        
+        await saveVerificationStatus(status);
+        
+        res.json({ success: true, verified: status[key] });
+    } catch (error) {
+        console.error('Error saving verification status:', error);
+        res.status(500).json({ error: 'Error saving verification status', details: error.message });
+    }
+});
+
 // Serve book files
 app.use('/books', express.static('books'));
 

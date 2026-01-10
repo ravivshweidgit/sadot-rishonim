@@ -244,6 +244,131 @@
             border-right: 4px solid #c62828;
         }
 
+        .text-controls {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #F5F5DC;
+        }
+
+        .btn-edit, .btn-save, .btn-cancel {
+            padding: 0.5rem 1rem;
+            border: 2px solid #556B2F;
+            background: #556B2F;
+            color: #F5F5DC;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 0.9rem;
+            transition: background 0.3s;
+        }
+
+        .btn-edit:hover, .btn-save:hover {
+            background: #3E2723;
+            border-color: #3E2723;
+        }
+
+        .btn-cancel {
+            background: #8B7355;
+            border-color: #8B7355;
+        }
+
+        .btn-cancel:hover {
+            background: #6B5A4A;
+            border-color: #6B5A4A;
+        }
+
+        .save-status {
+            margin-right: auto;
+            color: #556B2F;
+            font-weight: 600;
+        }
+
+        .save-status.success {
+            color: #2e7d32;
+        }
+
+        .save-status.error {
+            color: #c62828;
+        }
+
+        .verification-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border: 2px solid #8B7355;
+            border-radius: 4px;
+            cursor: pointer;
+            background: rgba(255, 255, 255, 0.1);
+            transition: all 0.3s;
+            margin-right: auto;
+        }
+
+        .verification-indicator:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .verification-indicator.verified {
+            border-color: #2e7d32;
+            background: rgba(46, 125, 50, 0.2);
+        }
+
+        .verification-indicator.unverified {
+            border-color: #c62828;
+            background: rgba(198, 40, 40, 0.2);
+        }
+
+        .verification-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .verification-indicator.verified .verification-dot {
+            background-color: #2e7d32;
+            box-shadow: 0 0 8px rgba(46, 125, 50, 0.6);
+        }
+
+        .verification-indicator.unverified .verification-dot {
+            background-color: #c62828;
+            box-shadow: 0 0 8px rgba(198, 40, 40, 0.6);
+        }
+
+        .verification-text {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #F5F5DC;
+        }
+
+        .text-content {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .text-edit {
+            width: 100%;
+            min-height: 400px;
+            padding: 1rem;
+            border: 2px solid #556B2F;
+            border-radius: 4px;
+            font-family: inherit;
+            font-size: 1.1rem;
+            line-height: 1.1;
+            text-align: right;
+            direction: rtl;
+            resize: vertical;
+        }
+
+        .text-edit:focus {
+            outline: none;
+            border-color: #3E2723;
+            box-shadow: 0 0 0 3px rgba(85, 107, 47, 0.1);
+        }
+
         /* Mobile responsive */
         @media (max-width: 968px) {
             .reader-layout {
@@ -338,6 +463,16 @@
                 </div>
             </div>
             <div class="text-side">
+                <div class="text-controls" id="textControls" style="display: none;">
+                    <div class="verification-indicator" id="verificationIndicator" onclick="toggleVerification()" title="לחץ כדי לסמן כנבדק/לא נבדק">
+                        <span class="verification-dot" id="verificationDot"></span>
+                        <span class="verification-text" id="verificationText">לא נבדק</span>
+                    </div>
+                    <button class="btn-edit" id="editBtn" onclick="toggleEditMode()">ערוך טקסט</button>
+                    <button class="btn-save" id="saveBtn" onclick="saveText()" style="display: none;">שמור שינויים</button>
+                    <button class="btn-cancel" id="cancelBtn" onclick="cancelEdit()" style="display: none;">בטל</button>
+                    <span class="save-status" id="saveStatus"></span>
+                </div>
                 <div id="textContainer">
                     <div class="loading">טוען טקסט...</div>
                 </div>
@@ -360,6 +495,10 @@
         let currentPage = 0;
         let minPage = 0;
         let maxPage = 0;
+        let isEditMode = false;
+        let originalText = '';
+        let currentPageStr = '';
+        let isVerified = false;
 
         // Load books configuration
         async function loadBooksConfig() {
@@ -647,7 +786,24 @@
                 }
                 
                 const text = await response.text();
+                originalText = text;
+                currentPageStr = pageStr;
+                
+                // Exit edit mode if we're loading a new page
+                if (isEditMode) {
+                    cancelEdit();
+                }
+                
                 container.innerHTML = `<div class="text-content">${escapeHtml(text)}</div>`;
+                
+                // Show edit controls if text loaded successfully
+                const controls = document.getElementById('textControls');
+                if (controls) {
+                    controls.style.display = 'flex';
+                }
+                
+                // Load verification status
+                await loadVerificationStatus(pageStr);
             } catch (error) {
                 // CORS error or network error - provide helpful message
                 if (error.message.includes('CORS') || error.message.includes('Failed to fetch') || error.name === 'TypeError') {
@@ -663,9 +819,187 @@
                 } else {
                     container.innerHTML = `<div class="error">שגיאה בטעינת הטקסט: ${error.message}</div>`;
                 }
+                
+                // Hide edit controls on error
+                const controls = document.getElementById('textControls');
+                if (controls) {
+                    controls.style.display = 'none';
+                }
+                
+                // Reset edit state
+                isEditMode = false;
+                originalText = '';
+                currentPageStr = '';
             }
         }
 
+        function toggleEditMode() {
+            const container = document.getElementById('textContainer');
+            const editBtn = document.getElementById('editBtn');
+            const saveBtn = document.getElementById('saveBtn');
+            const cancelBtn = document.getElementById('cancelBtn');
+            const saveStatus = document.getElementById('saveStatus');
+            
+            if (!isEditMode) {
+                // Enter edit mode
+                isEditMode = true;
+                const textarea = document.createElement('textarea');
+                textarea.className = 'text-edit';
+                textarea.value = originalText;
+                container.innerHTML = '';
+                container.appendChild(textarea);
+                
+                editBtn.style.display = 'none';
+                saveBtn.style.display = 'inline-block';
+                cancelBtn.style.display = 'inline-block';
+                saveStatus.textContent = '';
+            }
+        }
+        
+        function cancelEdit() {
+            const container = document.getElementById('textContainer');
+            const editBtn = document.getElementById('editBtn');
+            const saveBtn = document.getElementById('saveBtn');
+            const cancelBtn = document.getElementById('cancelBtn');
+            const saveStatus = document.getElementById('saveStatus');
+            
+            isEditMode = false;
+            container.innerHTML = `<div class="text-content">${escapeHtml(originalText)}</div>`;
+            
+            editBtn.style.display = 'inline-block';
+            saveBtn.style.display = 'none';
+            cancelBtn.style.display = 'none';
+            saveStatus.textContent = '';
+        }
+        
+        async function saveText() {
+            const container = document.getElementById('textContainer');
+            const textarea = container.querySelector('.text-edit');
+            const saveBtn = document.getElementById('saveBtn');
+            const saveStatus = document.getElementById('saveStatus');
+            
+            if (!textarea) {
+                return;
+            }
+            
+            const editedText = textarea.value;
+            
+            // Disable save button during save
+            saveBtn.disabled = true;
+            saveStatus.textContent = 'שומר...';
+            saveStatus.className = 'save-status';
+            
+            try {
+                const response = await fetch('/api/save-text', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        bookId: currentBookId,
+                        page: currentPageStr,
+                        text: editedText
+                    })
+                });
+                
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+                    throw new Error(errorData.error || `שגיאה בשמירה (קוד: ${response.status})`);
+                }
+                
+                const result = await response.json();
+                
+                // Update original text
+                originalText = editedText;
+                
+                // Exit edit mode and show success
+                isEditMode = false;
+                container.innerHTML = `<div class="text-content">${escapeHtml(editedText)}</div>`;
+                
+                const editBtn = document.getElementById('editBtn');
+                const cancelBtn = document.getElementById('cancelBtn');
+                editBtn.style.display = 'inline-block';
+                saveBtn.style.display = 'none';
+                cancelBtn.style.display = 'none';
+                
+                saveStatus.textContent = 'נשמר בהצלחה!';
+                saveStatus.className = 'save-status success';
+                
+                // Clear success message after 3 seconds
+                setTimeout(() => {
+                    saveStatus.textContent = '';
+                }, 3000);
+                
+            } catch (error) {
+                saveStatus.textContent = `שגיאה: ${error.message}`;
+                saveStatus.className = 'save-status error';
+            } finally {
+                saveBtn.disabled = false;
+            }
+        }
+        
+        async function loadVerificationStatus(pageStr) {
+            try {
+                const response = await fetch(`/api/verification/${currentBookId}/${pageStr}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    isVerified = data.verified || false;
+                } else {
+                    isVerified = false;
+                }
+            } catch (error) {
+                console.error('Error loading verification status:', error);
+                isVerified = false;
+            }
+            updateVerificationUI();
+        }
+        
+        function updateVerificationUI() {
+            const indicator = document.getElementById('verificationIndicator');
+            const dot = document.getElementById('verificationDot');
+            const text = document.getElementById('verificationText');
+            
+            if (!indicator) return;
+            
+            if (isVerified) {
+                indicator.className = 'verification-indicator verified';
+                text.textContent = 'נבדק';
+            } else {
+                indicator.className = 'verification-indicator unverified';
+                text.textContent = 'לא נבדק';
+            }
+        }
+        
+        async function toggleVerification() {
+            const newStatus = !isVerified;
+            
+            try {
+                const response = await fetch('/api/verification', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        bookId: currentBookId,
+                        page: currentPageStr,
+                        verified: newStatus
+                    })
+                });
+                
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+                    throw new Error(errorData.error || 'שגיאה בשמירת סטטוס האימות');
+                }
+                
+                isVerified = newStatus;
+                updateVerificationUI();
+                
+            } catch (error) {
+                console.error('Error toggling verification:', error);
+                alert(`שגיאה: ${error.message}`);
+            }
+        }
+        
         async function loadGallery(pageStr) {
             const galleryContainer = document.getElementById('galleryContainer');
             const galleryGrid = document.getElementById('galleryGrid');
