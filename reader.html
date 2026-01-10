@@ -933,6 +933,12 @@
         }
 
         function toggleEditMode() {
+            // Prevent editing if file is verified (locked)
+            if (isVerified) {
+                alert('קובץ זה נבדק ונעול לעריכה. יש לבטל את הסטטוס "נבדק" כדי לערוך.');
+                return;
+            }
+            
             const container = document.getElementById('textContainer');
             const editBtn = document.getElementById('editBtn');
             const saveBtn = document.getElementById('saveBtn');
@@ -995,6 +1001,14 @@
         }
         
         async function saveText() {
+            // Prevent saving if file is verified (locked)
+            if (isVerified) {
+                const saveStatus = document.getElementById('saveStatus');
+                saveStatus.textContent = 'שגיאה: קובץ נבדק ונעול - לא ניתן לשמור';
+                saveStatus.className = 'save-status error';
+                return;
+            }
+            
             const container = document.getElementById('textContainer');
             const textEdit = container.querySelector('.text-edit');
             const saveBtn = document.getElementById('saveBtn');
@@ -1121,20 +1135,43 @@
             const indicator = document.getElementById('verificationIndicator');
             const dot = document.getElementById('verificationDot');
             const text = document.getElementById('verificationText');
+            const editBtn = document.getElementById('editBtn');
             
             if (!indicator) return;
             
             if (isVerified) {
                 indicator.className = 'verification-indicator verified';
                 text.textContent = 'נבדק';
+                // Disable edit button when verified (locked)
+                if (editBtn) {
+                    editBtn.disabled = true;
+                    editBtn.title = 'קובץ נבדק ונעול - יש לבטל את הסטטוס "נבדק" כדי לערוך';
+                    editBtn.style.opacity = '0.5';
+                    editBtn.style.cursor = 'not-allowed';
+                }
             } else {
                 indicator.className = 'verification-indicator unverified';
                 text.textContent = 'לא נבדק';
+                // Enable edit button when not verified
+                if (editBtn) {
+                    editBtn.disabled = false;
+                    editBtn.title = 'ערוך טקסט';
+                    editBtn.style.opacity = '1';
+                    editBtn.style.cursor = 'pointer';
+                }
             }
         }
         
         async function toggleVerification() {
             const newStatus = !isVerified;
+            
+            // If verifying (locking), exit edit mode if currently editing
+            if (newStatus && isEditMode) {
+                if (!confirm('הקובץ יסומן כנבדק ונעול. כל שינויים שלא נשמרו יאבדו. להמשיך?')) {
+                    return;
+                }
+                cancelEdit();
+            }
             
             try {
                 const response = await fetch('/api/verification', {
