@@ -514,7 +514,7 @@
         function goToChapter() {
             const select = document.getElementById('chapterSelect');
             const page = parseInt(select.value);
-            if (page) {
+            if (select.value !== '' && !isNaN(page)) {
                 currentPage = page;
                 loadPage(currentPage);
                 updateURL();
