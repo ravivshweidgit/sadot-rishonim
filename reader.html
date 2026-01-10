@@ -265,6 +265,39 @@
             transition: background 0.3s;
         }
 
+        .font-controls, .line-spacing-controls {
+            display: flex;
+            gap: 0;
+            border: 2px solid #556B2F;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .btn-control {
+            padding: 0.5rem 0.75rem;
+            border: none;
+            background: #556B2F;
+            color: #F5F5DC;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 1rem;
+            font-weight: bold;
+            transition: background 0.3s;
+            border-left: 1px solid rgba(245, 245, 220, 0.3);
+        }
+
+        .btn-control:first-child {
+            border-left: none;
+        }
+
+        .btn-control:hover {
+            background: #3E2723;
+        }
+
+        .btn-control:active {
+            background: #2E1A1A;
+        }
+
         .btn-edit:hover, .btn-save:hover {
             background: #3E2723;
             border-color: #3E2723;
@@ -469,6 +502,14 @@
                         <span class="verification-text" id="verificationText">לא נבדק</span>
                     </div>
                     <button class="btn-edit" id="editBtn" onclick="toggleEditMode()">ערוך טקסט</button>
+                    <div class="font-controls">
+                        <button class="btn-control" onclick="adjustFontSize(-1)" title="הקטן גופן">-</button>
+                        <button class="btn-control" onclick="adjustFontSize(1)" title="הגדל גופן">+</button>
+                    </div>
+                    <div class="line-spacing-controls">
+                        <button class="btn-control" onclick="adjustLineHeight(0.1)" title="הגדל ריווח שורות">↑</button>
+                        <button class="btn-control" onclick="adjustLineHeight(-0.1)" title="הקטן ריווח שורות">↓</button>
+                    </div>
                     <button class="btn-save" id="saveBtn" onclick="saveText()" style="display: none;">שמור שינויים</button>
                     <button class="btn-cancel" id="cancelBtn" onclick="cancelEdit()" style="display: none;">בטל</button>
                     <span class="save-status" id="saveStatus"></span>
@@ -499,6 +540,8 @@
         let originalText = '';
         let currentPageStr = '';
         let isVerified = false;
+        let currentFontSize = parseFloat(localStorage.getItem('textFontSize')) || 1.1;
+        let currentLineHeight = parseFloat(localStorage.getItem('textLineHeight')) || 1.1;
 
         // Load books configuration
         async function loadBooksConfig() {
@@ -796,6 +839,9 @@
                 
                 container.innerHTML = `<div class="text-content">${escapeHtml(text)}</div>`;
                 
+                // Apply text styles (font size and line height)
+                applyTextStyles();
+                
                 // Show edit controls if text loaded successfully
                 const controls = document.getElementById('textControls');
                 if (controls) {
@@ -849,6 +895,9 @@
                 container.innerHTML = '';
                 container.appendChild(textarea);
                 
+                // Apply text styles to textarea
+                applyTextStyles();
+                
                 editBtn.style.display = 'none';
                 saveBtn.style.display = 'inline-block';
                 cancelBtn.style.display = 'inline-block';
@@ -865,6 +914,9 @@
             
             isEditMode = false;
             container.innerHTML = `<div class="text-content">${escapeHtml(originalText)}</div>`;
+            
+            // Apply text styles
+            applyTextStyles();
             
             editBtn.style.display = 'inline-block';
             saveBtn.style.display = 'none';
@@ -915,6 +967,9 @@
                 // Exit edit mode and show success
                 isEditMode = false;
                 container.innerHTML = `<div class="text-content">${escapeHtml(editedText)}</div>`;
+                
+                // Apply text styles
+                applyTextStyles();
                 
                 const editBtn = document.getElementById('editBtn');
                 const cancelBtn = document.getElementById('cancelBtn');
@@ -997,6 +1052,38 @@
             } catch (error) {
                 console.error('Error toggling verification:', error);
                 alert(`שגיאה: ${error.message}`);
+            }
+        }
+        
+        function adjustFontSize(delta) {
+            currentFontSize += delta * 0.1;
+            // Limit font size between 0.8rem and 2.0rem
+            currentFontSize = Math.max(0.8, Math.min(2.0, currentFontSize));
+            localStorage.setItem('textFontSize', currentFontSize.toString());
+            applyTextStyles();
+        }
+        
+        function adjustLineHeight(delta) {
+            currentLineHeight += delta;
+            // Limit line height between 0 and 2.5
+            currentLineHeight = Math.max(0, Math.min(2.5, currentLineHeight));
+            localStorage.setItem('textLineHeight', currentLineHeight.toString());
+            applyTextStyles();
+        }
+        
+        function applyTextStyles() {
+            const textContainer = document.getElementById('textContainer');
+            const textContent = textContainer.querySelector('.text-content');
+            const textEdit = textContainer.querySelector('.text-edit');
+            
+            if (textContent) {
+                textContent.style.fontSize = `${currentFontSize}rem`;
+                textContent.style.lineHeight = currentLineHeight.toString();
+            }
+            
+            if (textEdit) {
+                textEdit.style.fontSize = `${currentFontSize}rem`;
+                textEdit.style.lineHeight = currentLineHeight.toString();
             }
         }
         
