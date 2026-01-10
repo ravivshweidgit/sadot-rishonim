@@ -1,0 +1,323 @@
+/* Chat with Yehuda - Floating Chat Component Styles */
+
+.yehuda-chat-button {
+    position: fixed;
+    bottom: 2rem;
+    left: 2rem;
+    background: linear-gradient(135deg, #556B2F 0%, #3E2723 100%);
+    color: #F5F5DC;
+    border: none;
+    padding: 1rem 1.5rem;
+    border-radius: 50px;
+    font-family: 'Assistant', sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    z-index: 1000;
+    transition: transform 0.3s, box-shadow 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    direction: rtl;
+}
+
+.yehuda-chat-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+}
+
+.yehuda-chat-container {
+    position: fixed;
+    bottom: 2rem;
+    left: 2rem;
+    width: 400px;
+    max-height: 600px;
+    background: #F5F5DC;
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3), inset 0 0 0 1px rgba(139, 115, 85, 0.2);
+    display: none;
+    flex-direction: column;
+    z-index: 1001;
+    direction: rtl;
+    overflow: hidden;
+    border: 1px solid #D4C4A8;
+}
+
+.yehuda-chat-container.chat-open {
+    display: flex;
+}
+
+.yehuda-chat-header {
+    background: linear-gradient(135deg, #556B2F 0%, #3E2723 100%);
+    color: #F5F5DC;
+    padding: 1rem 1.5rem;
+    border-radius: 12px 12px 0 0;
+}
+
+.chat-header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.chat-title {
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+.chat-toggle-btn {
+    background: none;
+    border: none;
+    color: #F5F5DC;
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: background 0.3s;
+}
+
+.chat-toggle-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.yehuda-chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1rem;
+    background: #F5F5DC;
+    min-height: 300px;
+    max-height: 450px;
+    /* Aged paper texture background */
+    background-image: 
+        radial-gradient(circle at 20% 50%, rgba(139, 115, 85, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(139, 115, 85, 0.1) 0%, transparent 50%),
+        linear-gradient(180deg, rgba(139, 115, 85, 0.03) 0%, transparent 100%);
+}
+
+.chat-welcome {
+    background: #F4E8D0;
+    padding: 1rem;
+    border-radius: 4px;
+    margin-bottom: 1rem;
+    border: 1px solid #D4C4A8;
+    border-right: 2px solid #8B7355;
+    font-size: 0.95rem;
+    line-height: 1.4;
+    font-family: 'Courier New', 'Courier', monospace;
+    color: #1A1A1A;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.chat-message {
+    margin-bottom: 1rem;
+    animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.chat-message-user {
+    display: flex;
+    justify-content: flex-start;
+}
+
+.chat-message-assistant {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.chat-message-content {
+    max-width: 80%;
+    padding: 1rem 1.25rem;
+    border-radius: 4px;
+    line-height: 1.4;
+    word-wrap: break-word;
+    /* Typewriter font for vintage feel */
+    font-family: 'Courier New', 'Courier', monospace;
+    font-size: 0.95rem;
+    letter-spacing: 0.02em;
+    position: relative;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.chat-message-user .chat-message-content {
+    /* Dark telegram/note style for user messages */
+    background: linear-gradient(135deg, #E8DCC6 0%, #D4C4A8 100%);
+    color: #1A1A1A;
+    border: 1px solid #B8A082;
+    border-right: 2px solid #8B7355;
+    border-bottom-right-radius: 2px;
+    /* Subtle aged paper texture */
+    background-image: 
+        repeating-linear-gradient(
+            0deg,
+            transparent,
+            transparent 2px,
+            rgba(139, 115, 85, 0.03) 2px,
+            rgba(139, 115, 85, 0.03) 4px
+        );
+}
+
+.chat-message-assistant .chat-message-content {
+    /* Sepia aged paper for Yehuda's responses */
+    background: linear-gradient(135deg, #F4E8D0 0%, #E8DCC6 100%);
+    color: #1A1A1A;
+    border: 1px solid #D4C4A8;
+    border-right: 2px solid #8B7355;
+    border-bottom-left-radius: 2px;
+    /* Aged paper texture with subtle lines */
+    background-image: 
+        repeating-linear-gradient(
+            90deg,
+            transparent,
+            transparent 2px,
+            rgba(139, 115, 85, 0.02) 2px,
+            rgba(139, 115, 85, 0.02) 4px
+        ),
+        radial-gradient(circle at 10% 20%, rgba(139, 115, 85, 0.05) 0%, transparent 50%);
+}
+
+.chat-message-content .page-link {
+    color: #8B4513;
+    text-decoration: underline;
+    text-decoration-style: wavy;
+    text-underline-offset: 2px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: color 0.3s;
+    background: rgba(139, 69, 19, 0.15);
+    padding: 0 2px;
+}
+
+.chat-message-content .page-link:hover {
+    color: #654321;
+    background: rgba(139, 69, 19, 0.25);
+    text-decoration-color: #654321;
+}
+
+.chat-message-time {
+    font-size: 0.7rem;
+    color: #8B7355;
+    margin-top: 0.25rem;
+    padding: 0 0.5rem;
+    font-family: 'Courier New', 'Courier', monospace;
+    font-style: italic;
+    opacity: 0.7;
+}
+
+.chat-message-user .chat-message-time {
+    text-align: right;
+}
+
+.chat-message-assistant .chat-message-time {
+    text-align: left;
+}
+
+.chat-loading {
+    padding: 0.75rem 1rem;
+    color: #1A1A1A;
+    font-style: italic;
+    font-family: 'Courier New', 'Courier', monospace;
+    background: #F4E8D0;
+    border: 1px solid #D4C4A8;
+    border-radius: 4px;
+    opacity: 0.7;
+}
+
+.yehuda-chat-input-container {
+    display: flex;
+    gap: 0.5rem;
+    padding: 1rem;
+    background: #F5F5DC;
+    border-top: 2px solid #D4C4A8;
+    border-radius: 0 0 8px 8px;
+}
+
+.yehuda-chat-input {
+    flex: 1;
+    padding: 0.75rem;
+    border: 1px solid #D4C4A8;
+    border-right: 2px solid #8B7355;
+    border-radius: 4px;
+    font-family: 'Courier New', 'Courier', monospace;
+    font-size: 0.95rem;
+    resize: none;
+    direction: rtl;
+    line-height: 1.4;
+    background: #F4E8D0;
+    color: #1A1A1A;
+    letter-spacing: 0.02em;
+}
+
+.yehuda-chat-input:focus {
+    outline: none;
+    border-color: #8B7355;
+    border-right-color: #6B5A42;
+    background: #FAF5ED;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.yehuda-chat-input:disabled {
+    background: #F5F5F5;
+    cursor: not-allowed;
+}
+
+.yehuda-chat-send-btn {
+    background: #556B2F;
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-family: 'Assistant', sans-serif;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.3s;
+    white-space: nowrap;
+}
+
+.yehuda-chat-send-btn:hover:not(:disabled) {
+    background: #3E2723;
+}
+
+.yehuda-chat-send-btn:disabled {
+    background: #CCCCCC;
+    cursor: not-allowed;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+    .yehuda-chat-container {
+        width: calc(100vw - 2rem);
+        max-width: 400px;
+        bottom: 1rem;
+        left: 1rem;
+        right: 1rem;
+        max-height: calc(100vh - 2rem);
+    }
+    
+    .yehuda-chat-button {
+        bottom: 1rem;
+        left: 1rem;
+        padding: 0.75rem 1.25rem;
+        font-size: 0.9rem;
+    }
+    
+    .yehuda-chat-messages {
+        max-height: calc(100vh - 250px);
+    }
+}
+

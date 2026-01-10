@@ -1,0 +1,20 @@
+{
+  "name": "sadot-rishonim",
+  "version": "1.0.0",
+  "description": "Digital legacy website for Yehuda Markovsky - Shadot Rishonim",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@google/generative-ai": "^0.24.1",
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "fs": "^0.0.1-security",
+    "path": "^0.12.7"
+  }
+}

@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>קורא - שדות ראשונים</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;700&family=Frank+Ruhl+Libre:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="chat-component.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Assistant', 'Frank Ruhl Libre', serif;
+            background-color: #F5F5DC;
+            color: #3E2723;
+            direction: rtl;
+            overflow-x: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #556B2F 0%, #3E2723 100%);
+            color: #F5F5DC;
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .nav-controls {
+            display: flex;
+            gap: 0;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .nav-group {
+            display: flex;
+            gap: 0;
+            align-items: center;
+        }
+        
+        .nav-group:not(:last-child)::after {
+            content: '';
+            width: 1px;
+            height: 28px;
+            background: rgba(245, 245, 220, 0.3);
+            margin: 0 0.75rem;
+        }
+        
+        /* Grouped buttons - remove borders between them */
+        .nav-group .btn-nav:not(:last-child),
+        .nav-group .chapter-select:not(:last-child) {
+            border-left: none;
+            border-radius: 0;
+        }
+        
+        /* First button in group - rounded on right side (RTL) */
+        .nav-group .btn-nav:first-child,
+        .nav-group .chapter-select:first-child {
+            border-top-right-radius: 4px;
+            border-bottom-right-radius: 4px;
+        }
+        
+        /* Last button in group - rounded on left side (RTL) */
+        .nav-group .btn-nav:last-child,
+        .nav-group .chapter-select:last-child {
+            border-top-left-radius: 4px;
+            border-bottom-left-radius: 4px;
+        }
+        
+        /* Single button in group - fully rounded */
+        .nav-group .btn-nav:only-child,
+        .nav-group .chapter-select:only-child {
+            border-radius: 4px;
+            border-left: 2px solid #F5F5DC;
+        }
+        
+        /* Hover effect for grouped buttons */
+        .nav-group .btn-nav:hover:not(:disabled) {
+            background: rgba(255, 255, 255, 0.3);
+            z-index: 1;
+            position: relative;
+        }
+        
+        .nav-group .chapter-select:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .chapter-select {
+            padding: 0.5rem 1rem;
+            border: 2px solid #F5F5DC;
+            background: rgba(255, 255, 255, 0.1);
+            color: #F5F5DC;
+            border-radius: 4px;
+            font-family: inherit;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+
+        .chapter-select option {
+            background: #556B2F;
+            color: #F5F5DC;
+        }
+
+        .btn-nav {
+            background: rgba(255, 255, 255, 0.2);
+            color: #F5F5DC;
+            border: 2px solid #F5F5DC;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 1rem;
+            transition: background 0.3s;
+        }
+
+        .btn-nav:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-nav:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .reader-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .reader-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .pdf-side {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            padding: 1rem;
+            position: sticky;
+            top: 100px;
+            height: fit-content;
+            max-height: calc(100vh - 120px);
+            overflow-y: auto;
+        }
+
+        .text-side {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+            line-height: 1.1;
+            font-size: 1.1rem;
+            white-space: pre-wrap;
+            text-align: justify;
+        }
+
+        .pdf-viewer {
+            width: 100%;
+            height: auto;
+            border-radius: 4px;
+        }
+
+        .gallery-section {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 2px solid #F5F5DC;
+        }
+
+        .gallery-section h3 {
+            color: #556B2F;
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 0.5rem;
+        }
+
+        .gallery-item {
+            cursor: pointer;
+            border-radius: 4px;
+            overflow: hidden;
+            border: 2px solid #F5F5DC;
+            transition: transform 0.3s;
+        }
+
+        .gallery-item:hover {
+            transform: scale(1.05);
+        }
+
+        .gallery-item img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .page-info {
+            text-align: center;
+            color: #8B7355;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: #8B7355;
+        }
+
+        .error {
+            background: #ffebee;
+            color: #c62828;
+            padding: 1rem;
+            border-radius: 4px;
+            margin: 1rem 0;
+            border-right: 4px solid #c62828;
+        }
+
+        /* Mobile responsive */
+        @media (max-width: 968px) {
+            .reader-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .pdf-side {
+                position: relative;
+                top: 0;
+                max-height: none;
+            }
+
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .nav-controls {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        /* Lightbox for gallery images */
+        .lightbox {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            cursor: pointer;
+        }
+
+        .lightbox-content {
+            margin: auto;
+            display: block;
+            width: 90%;
+            max-width: 900px;
+            margin-top: 5%;
+        }
+
+        .lightbox-close {
+            position: absolute;
+            top: 15px;
+            right: 35px;
+            color: #f1f1f1;
+            font-size: 40px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <h1>שדות ראשונים - קורא</h1>
+            <div class="nav-controls">
+                <div class="nav-group">
+                    <a href="index.html" class="btn-nav" style="text-decoration: none; display: inline-block;">דף הבית</a>
+                </div>
+                <div class="nav-group">
+                    <select class="chapter-select" id="bookSelect" onchange="goToBook()">
+                        <option value="">בחר ספר...</option>
+                    </select>
+                </div>
+                <div class="nav-group">
+                    <select class="chapter-select" id="chapterSelect" onchange="goToChapter()">
+                        <option value="">בחר פרק...</option>
+                    </select>
+                </div>
+                <div class="nav-group">
+                    <button class="btn-nav" id="prevBtn" onclick="navigatePage(-1)">עמוד קודם →</button>
+                    <button class="btn-nav" id="nextBtn" onclick="navigatePage(1)">← עמוד הבא</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="reader-container">
+        <div class="reader-layout">
+            <div class="pdf-side">
+                <div class="page-info" id="pageInfo">טוען...</div>
+                <div id="pdfContainer">
+                    <div class="loading">טוען מסמך...</div>
+                </div>
+                <div id="galleryContainer" class="gallery-section" style="display: none;">
+                    <h3>תמונות נוספות</h3>
+                    <div class="gallery-grid" id="galleryGrid"></div>
+                </div>
+            </div>
+            <div class="text-side">
+                <div id="textContainer">
+                    <div class="loading">טוען טקסט...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lightbox for gallery images -->
+    <div id="lightbox" class="lightbox" onclick="closeLightbox()">
+        <span class="lightbox-close">&times;</span>
+        <img class="lightbox-content" id="lightboxImg">
+    </div>
+
+    <script>
+        // Book configuration
+        let booksConfig = null;
+        let currentBookId = 'sadot_rishonim'; // Default book
+        let currentBook = null;
+        let chapters = [];
+        let currentPage = 0;
+        let minPage = 0;
+        let maxPage = 0;
+
+        // Load books configuration
+        async function loadBooksConfig() {
+            // Get book from URL first (before loading config)
+            const urlParams = new URLSearchParams(window.location.search);
+            const bookParam = urlParams.get('book');
+            const requestedBookId = bookParam || 'sadot_rishonim';
+            
+            try {
+                // Try to load from API first (if server is running)
+                // Add cache-busting parameter to prevent stale config
+                const response = await fetch(`/api/books?t=${Date.now()}`);
+                if (response.ok) {
+                    booksConfig = await response.json();
+                } else {
+                    throw new Error('API not available');
+                }
+            } catch (error) {
+                console.log('API not available, loading from config file...');
+                // Fallback: load from books-config.json directly
+                // Add cache-busting parameter to prevent browser caching
+                try {
+                    const response = await fetch(`books-config.json?t=${Date.now()}`);
+                    if (!response.ok) {
+                        throw new Error('Config file not found');
+                    }
+                    booksConfig = await response.json();
+                } catch (error) {
+                    console.error('Error loading books config:', error);
+                    // Fallback to default
+                    chapters = [];
+                    init();
+                    return;
+                }
+            }
+            
+            // Set the book ID from URL parameter
+            currentBookId = requestedBookId;
+            console.log(`Loading book: ${currentBookId} (requested: ${requestedBookId})`);
+            
+            currentBook = booksConfig.books[currentBookId];
+            if (!currentBook) {
+                console.error(`Book ${currentBookId} not found in config. Available books:`, Object.keys(booksConfig.books));
+                currentBookId = 'sadot_rishonim';
+                currentBook = booksConfig.books[currentBookId];
+            }
+            
+            if (!currentBook) {
+                console.error('Default book also not found!');
+                chapters = [];
+                init();
+                return;
+            }
+            
+            chapters = currentBook.chapters || [];
+            maxPage = currentBook.maxPage || 0;
+            
+            console.log(`Loaded book: ${currentBook.name}, ${chapters.length} chapters, maxPage: ${maxPage}`);
+            
+            // Update header with book name
+            document.querySelector('.header h1').textContent = `${currentBook.name} - קורא`;
+            
+            // Populate book selector
+            populateBookSelector();
+            
+            // Initialize page
+            init();
+        }
+        
+        function populateBookSelector() {
+            const bookSelect = document.getElementById('bookSelect');
+            if (!bookSelect || !booksConfig) return;
+            
+            bookSelect.innerHTML = '<option value="">בחר ספר...</option>';
+            
+            Object.keys(booksConfig.books).forEach(bookId => {
+                const book = booksConfig.books[bookId];
+                const option = document.createElement('option');
+                option.value = bookId;
+                option.textContent = book.name;
+                if (bookId === currentBookId) {
+                    option.selected = true;
+                }
+                bookSelect.appendChild(option);
+            });
+        }
+        
+        function goToBook() {
+            const bookSelect = document.getElementById('bookSelect');
+            const selectedBookId = bookSelect.value;
+            
+            if (!selectedBookId || selectedBookId === currentBookId) {
+                return;
+            }
+            
+            // Get the selected book's first chapter or page 0
+            const selectedBook = booksConfig.books[selectedBookId];
+            let targetPage = 0;
+            let targetChapter = 0;
+            
+            if (selectedBook && selectedBook.chapters && selectedBook.chapters.length > 0) {
+                targetPage = selectedBook.chapters[0].page;
+                targetChapter = selectedBook.chapters[0].number;
+            }
+            
+            // Navigate to the new book
+            window.location.href = `reader.html?book=${selectedBookId}&page=${targetPage}&chapter=${targetChapter}`;
+        }
+
+        // Initialize
+        function init() {
+            // Get page from URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const pageParam = urlParams.get('page');
+            const chapterParam = urlParams.get('chapter');
+            
+            if (pageParam) {
+                currentPage = parseInt(pageParam);
+            } else if (chapterParam && chapters.length > 0) {
+                const chapter = chapters.find(c => c.number == chapterParam);
+                if (chapter) {
+                    currentPage = chapter.page;
+                }
+            } else if (chapters.length > 0) {
+                // Default to first chapter
+                currentPage = chapters[0].page;
+            }
+
+            // Populate chapter select
+            const select = document.getElementById('chapterSelect');
+            select.innerHTML = '<option value="">בחר פרק...</option>';
+            
+            if (chapters.length === 0) {
+                select.innerHTML = '<option value="">אין פרקים זמינים</option>';
+                select.disabled = true;
+            } else {
+                chapters.forEach(chapter => {
+                    const option = document.createElement('option');
+                    option.value = chapter.page;
+                    const chapterLabel = chapter.number === 0 ? 'הקדמה' : `פרק ${chapter.number}`;
+                    option.textContent = `${chapterLabel}: ${chapter.name} (עמוד ${chapter.page})`;
+                    if (chapter.page === currentPage) {
+                        option.selected = true;
+                    }
+                    select.appendChild(option);
+                });
+            }
+
+            loadPage(currentPage);
+        }
+
+        function goToChapter() {
+            const select = document.getElementById('chapterSelect');
+            const page = parseInt(select.value);
+            if (page) {
+                currentPage = page;
+                loadPage(currentPage);
+                updateURL();
+            }
+        }
+
+        function navigatePage(direction) {
+            const newPage = currentPage + direction;
+            if (newPage >= minPage && newPage <= maxPage) {
+                currentPage = newPage;
+                loadPage(currentPage);
+                updateURL();
+            }
+        }
+
+        function updateURL() {
+            // Find the chapter that contains this page (the chapter with the highest page number <= current page)
+            let chapter = chapters.length > 0 ? chapters[0] : null;
+            if (chapters.length > 0) {
+                for (let i = chapters.length - 1; i >= 0; i--) {
+                    if (chapters[i].page <= currentPage) {
+                        chapter = chapters[i];
+                        break;
+                    }
+                }
+            }
+            const url = new URL(window.location);
+            url.searchParams.set('book', currentBookId);
+            url.searchParams.set('page', currentPage);
+            if (chapter) {
+                url.searchParams.set('chapter', chapter.number);
+            }
+            window.history.pushState({}, '', url);
+        }
+
+        async function loadPage(page) {
+            const pageStr = String(page).padStart(3, '0');
+            
+            // Update page info - find the chapter that contains this page
+            let chapter = chapters.length > 0 ? chapters[0] : null;
+            if (chapters.length > 0) {
+                for (let i = chapters.length - 1; i >= 0; i--) {
+                    if (chapters[i].page <= page) {
+                        chapter = chapters[i];
+                        break;
+                    }
+                }
+            }
+            const pageInfo = document.getElementById('pageInfo');
+            if (chapter) {
+                const chapterLabel = chapter.number === 0 ? 'הקדמה' : `פרק ${chapter.number}`;
+                pageInfo.textContent = `${chapterLabel}: ${chapter.name} - עמוד ${page}`;
+            } else {
+                pageInfo.textContent = `עמוד ${page}`;
+            }
+
+            // Update navigation buttons
+            document.getElementById('prevBtn').disabled = page <= minPage;
+            document.getElementById('nextBtn').disabled = page >= maxPage;
+
+            // Update chapter select
+            const select = document.getElementById('chapterSelect');
+            if (chapters.length > 0) {
+                // Find the chapter that contains this page (the chapter with the highest page number <= current page)
+                let currentChapter = chapters[0];
+                for (let i = chapters.length - 1; i >= 0; i--) {
+                    if (chapters[i].page <= page) {
+                        currentChapter = chapters[i];
+                        break;
+                    }
+                }
+                select.value = currentChapter.page;
+            }
+
+            // Load PDF
+            loadPDF(pageStr);
+
+            // Load text
+            loadText(pageStr);
+
+            // Load gallery
+            loadGallery(pageStr);
+        }
+
+        function loadPDF(pageStr) {
+            const container = document.getElementById('pdfContainer');
+            const pdfPath = `books/${currentBookId}/pdf_pages/${pageStr}.pdf`;
+            // Add #view=Fit to fit entire PDF page to viewer (width and height)
+            const pdfPathWithView = `${pdfPath}#view=Fit`;
+            // Use object tag for better PDF display
+            container.innerHTML = `
+                <object data="${pdfPathWithView}" type="application/pdf" class="pdf-viewer" style="width: 100%; height: calc(100vh - 200px);">
+                    <iframe src="${pdfPathWithView}" style="width: 100%; height: calc(100vh - 200px); border: none;"></iframe>
+                </object>
+            `;
+        }
+
+        async function loadText(pageStr) {
+            const container = document.getElementById('textContainer');
+            try {
+                const textPath = `books/${currentBookId}/text/${pageStr}.txt`;
+                // Try with padding first (e.g., 009.txt)
+                let response = await fetch(textPath, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'text/plain; charset=utf-8'
+                    }
+                });
+                
+                // If not found, try without padding (e.g., 9.txt)
+                if (!response.ok && response.status === 404) {
+                    const pageNum = parseInt(pageStr);
+                    if (pageNum.toString() !== pageStr) {
+                        const textPathNoPad = `books/${currentBookId}/text/${pageNum}.txt`;
+                        response = await fetch(textPathNoPad, {
+                            method: 'GET',
+                            headers: {
+                                'Content-Type': 'text/plain; charset=utf-8'
+                            }
+                        });
+                    }
+                }
+                
+                if (!response.ok) {
+                    if (response.status === 404) {
+                        throw new Error(`קובץ ${pageStr}.txt לא נמצא בספר ${currentBook.name}`);
+                    } else {
+                        throw new Error(`שגיאה בטעינת הקובץ (קוד שגיאה: ${response.status})`);
+                    }
+                }
+                
+                const text = await response.text();
+                container.innerHTML = `<div class="text-content">${escapeHtml(text)}</div>`;
+            } catch (error) {
+                // CORS error or network error - provide helpful message
+                if (error.message.includes('CORS') || error.message.includes('Failed to fetch') || error.name === 'TypeError') {
+                    container.innerHTML = `
+                        <div class="error">
+                            <strong>בעיית CORS:</strong> יש להריץ את האתר דרך שרת מקומי.<br><br>
+                            אפשרויות:<br>
+                            1. Python: <code>python -m http.server 8000</code><br>
+                            2. Node.js: <code>npx http-server</code><br>
+                            3. פתח את האתר דרך: <code>http://localhost:8000</code>
+                        </div>
+                    `;
+                } else {
+                    container.innerHTML = `<div class="error">שגיאה בטעינת הטקסט: ${error.message}</div>`;
+                }
+            }
+        }
+
+        async function loadGallery(pageStr) {
+            const galleryContainer = document.getElementById('galleryContainer');
+            const galleryGrid = document.getElementById('galleryGrid');
+            
+            // Check if gallery directory exists (we'll simulate this by checking common image extensions)
+            // In a real implementation, you'd need a backend API to check directory existence
+            galleryGrid.innerHTML = '';
+            galleryContainer.style.display = 'none';
+            
+            // For now, we'll assume gallery images might exist
+            // You can implement actual directory checking with a backend service
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML.replace(/\n/g, '<br>');
+        }
+
+        function openLightbox(imgSrc) {
+            const lightbox = document.getElementById('lightbox');
+            const lightboxImg = document.getElementById('lightboxImg');
+            lightboxImg.src = imgSrc;
+            lightbox.style.display = 'block';
+        }
+
+        function closeLightbox() {
+            document.getElementById('lightbox').style.display = 'none';
+        }
+
+        // Handle browser back/forward
+        window.addEventListener('popstate', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const bookParam = urlParams.get('book');
+            const pageParam = urlParams.get('page');
+            
+            // If book changed, reload config
+            if (bookParam && bookParam !== currentBookId) {
+                loadBooksConfig();
+            } else if (pageParam) {
+                currentPage = parseInt(pageParam);
+                loadPage(currentPage);
+            }
+        });
+
+        // Initialize on load - load books config first
+        loadBooksConfig();
+    </script>
+    <script src="chat-component.js"></script>
+</body>
+</html>
+

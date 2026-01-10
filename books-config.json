@@ -1,0 +1,44 @@
+{
+  "books": {
+    "sadot_rishonim": {
+      "name": "שדות ראשונים",
+      "author": "יהודה מרקובסקי",
+      "chapters": [
+        { "number": 0, "name": "הקדמה", "page": 0 },
+        { "number": 1, "name": "ראשית", "page": 9 },
+        { "number": 2, "name": "מטולה", "page": 26 },
+        { "number": 3, "name": "מלחמת העולם הראשונה", "page": 64 },
+        { "number": 4, "name": "ימי תל-חי", "page": 116 },
+        { "number": 5, "name": "עם החלוצים", "page": 140 },
+        { "number": 6, "name": "נהלל", "page": 149 },
+        { "number": 7, "name": "מאורעות וביטחון", "page": 203 },
+        { "number": 8, "name": "זמנית, מחוץ לנהלל", "page": 253 },
+        { "number": 9, "name": "חזרה לעמק יזרעאל", "page": 269 }
+      ],
+      "maxPage": 91
+    },
+    "beit_markovski": {
+      "name": "בית מרקובסקי",
+      "author": "רוחמה שחר",
+      "chapters": [
+        { "number": 0, "name": "הקדמה", "page": 0 },
+        { "number": 1, "name": "במילים ספורות", "page": 6 },
+        { "number": 2, "name": "בית אבא", "page": 9 },
+        { "number": 3, "name": "באר־טוביה", "page": 14 },
+        { "number": 4, "name": "ביפו", "page": 18 },
+        { "number": 5, "name": "אנו עולים הגלילה", "page": 23 },
+        { "number": 6, "name": "מטולה", "page": 27 },
+        { "number": 7, "name": "הגורן", "page": 56 },
+        { "number": 8, "name": "זוטות", "page": 69 },
+        { "number": 9, "name": "עם \"השומר\" ו\"הרועה\"", "page": 80 },
+        { "number": 10, "name": "מלחמת העולם הראשונה", "page": 86 },
+        { "number": 11, "name": "שנות חיינו היפות", "page": 96 },
+        { "number": 12, "name": "צאתנו את מטולה", "page": 99 },
+        { "number": 13, "name": "לזכרם", "page": 111 },
+        { "number": 14, "name": "נכדים מספרים על סבתא וסבא", "page": 123 }
+      ],
+      "maxPage": 135
+    }
+  }
+}
+

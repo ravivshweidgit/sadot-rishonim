@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>יהודה מרקובסקי - ארכיון דיגיטלי</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;700&family=Frank+Ruhl+Libre:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="chat-component.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Assistant', 'Frank Ruhl Libre', serif;
+            background-color: #F5F5DC;
+            color: #3E2723;
+            line-height: 1.8;
+            direction: rtl;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        header {
+            background: linear-gradient(135deg, #556B2F 0%, #3E2723 100%);
+            color: #F5F5DC;
+            padding: 3rem 2rem;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        header h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        header .subtitle {
+            font-size: 1.5rem;
+            font-weight: 400;
+            opacity: 0.9;
+            margin-top: 0.5rem;
+        }
+
+        .intro {
+            background: white;
+            padding: 3rem;
+            margin: 2rem 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            border-right: 4px solid #556B2F;
+        }
+
+        .intro h2 {
+            color: #556B2F;
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .intro p {
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+            text-align: justify;
+        }
+
+        .dayan-connection {
+            background: #F5F5DC;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-right: 3px solid #3E2723;
+            border-radius: 4px;
+        }
+
+        .dayan-connection strong {
+            color: #556B2F;
+        }
+
+        .chapters {
+            margin: 3rem 0;
+        }
+
+        .chapters h2 {
+            color: #556B2F;
+            font-size: 2rem;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .chapters-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .chapter-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+            border-right: 4px solid #556B2F;
+        }
+
+        .chapter-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .chapter-card h3 {
+            color: #3E2723;
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .chapter-card .page-number {
+            color: #556B2F;
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        .chapter-card .chapter-number {
+            color: #8B7355;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        footer {
+            background: #3E2723;
+            color: #F5F5DC;
+            padding: 2rem;
+            text-align: center;
+            margin-top: 4rem;
+        }
+
+        .btn-read {
+            display: inline-block;
+            background: #556B2F;
+            color: white;
+            padding: 1rem 2rem;
+            text-decoration: none;
+            border-radius: 4px;
+            margin-top: 1rem;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+
+        .btn-read:hover {
+            background: #3E2723;
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 2rem;
+            }
+
+            .intro {
+                padding: 1.5rem;
+            }
+
+            .chapters-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>שדות ראשונים</h1>
+        <div class="subtitle">ארכיון היסטורי דיגיטלי</div>
+        <div class="subtitle" style="font-size: 1.2rem; margin-top: 1rem;">שדות ראשונים מאת יהודה מרקובסקי • בית מרקובסקי מאת רוחמה שחר</div>
+    </header>
+
+    <div class="container">
+        <div class="intro">
+            <h2>ברוכים הבאים</h2>
+            <p>
+                אתר זה מוקדש לזכרו של יהודה מרקובסקי ולכתביו - מסע אישי אל ימי ראשית ההתיישבות בארץ ישראל. באתר זה שני ספרים: "שדות ראשונים" ו"בית מרקובסקי", המתארים את חייו של יהודה מרקובסקי, איש העלייה השנייה, שחי בארץ כמעט כל שנות המאה העשרים.
+            </p>
+            <p>
+                יהודה מרקובסקי עלה ארצה כילד ב-1904, השנה בה החלה העלייה השנייה, וחי, עבד, שמר והשתתף בלא מעט אירועים מרכזיים תחת שלושה שלטונות - העות'מאני, הבריטי וכמובן הישראלי.
+            </p>
+        </div>
+
+        <div class="books-selection" style="margin: 3rem 0;">
+            <h2 style="color: #556B2F; font-size: 2rem; margin-bottom: 2rem; text-align: center;">בחרו ספר</h2>
+            <div class="books-grid" id="booksGrid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem;">
+                <!-- Books will be loaded dynamically -->
+            </div>
+        </div>
+
+        <div class="chapters" id="chaptersSection" style="display: none;">
+            <h2 id="chaptersTitle">פרקי הספר</h2>
+            <div class="chapters-grid" id="chaptersGrid">
+                <!-- Chapters will be loaded dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>© כל הזכויות שמורות | יהודה מרקובסקי - ארכיון דיגיטלי</p>
+        <p style="margin-top: 0.5rem; font-size: 0.9rem;">רשמה וערכה: רינה פורת</p>
+    </footer>
+
+    <script>
+        let booksConfig = null;
+        let selectedBookId = null;
+
+        async function loadBooks() {
+            try {
+                // Try to load from API first (if server is running)
+                const response = await fetch('/api/books');
+                if (response.ok) {
+                    booksConfig = await response.json();
+                    renderBooks();
+                    return;
+                }
+            } catch (error) {
+                console.log('API not available, loading from config file...');
+            }
+            
+            // Fallback: load from books-config.json directly
+            try {
+                const response = await fetch('books-config.json');
+                booksConfig = await response.json();
+                renderBooks();
+            } catch (error) {
+                console.error('Error loading books:', error);
+                // Show error message
+                const grid = document.getElementById('booksGrid');
+                grid.innerHTML = '<p style="text-align: center; padding: 2rem; color: #c62828;">שגיאה בטעינת הספרים. אנא ודא שהשרת פועל או שקובץ books-config.json קיים.</p>';
+            }
+        }
+
+        function renderBooks() {
+            const grid = document.getElementById('booksGrid');
+            grid.innerHTML = '';
+            
+            Object.keys(booksConfig.books).forEach(bookId => {
+                const book = booksConfig.books[bookId];
+                const card = document.createElement('div');
+                card.className = 'chapter-card';
+                card.style.cursor = 'pointer';
+                card.onclick = () => selectBook(bookId);
+                card.innerHTML = `
+                    <h3>${book.name}</h3>
+                    <div class="subtitle" style="color: #8B7355; margin: 0.5rem 0;">${book.author}</div>
+                    <div class="page-number" style="margin-top: 1rem;">${book.chapters.length} פרקים</div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function selectBook(bookId) {
+            selectedBookId = bookId;
+            const book = booksConfig.books[bookId];
+            
+            // Hide books selection, show chapters
+            document.getElementById('booksGrid').style.display = 'none';
+            document.querySelector('.books-selection h2').style.display = 'none';
+            document.getElementById('chaptersSection').style.display = 'block';
+            document.getElementById('chaptersTitle').textContent = `פרקי הספר: ${book.name}`;
+            
+            renderChapters(book);
+        }
+
+        function renderChapters(book) {
+            const grid = document.getElementById('chaptersGrid');
+            grid.innerHTML = '';
+            
+            if (book.chapters.length === 0) {
+                grid.innerHTML = '<p style="text-align: center; padding: 2rem;">הספר עדיין לא זמין. בקרוב.</p>';
+                return;
+            }
+            
+            book.chapters.forEach(chapter => {
+                const card = document.createElement('div');
+                card.className = 'chapter-card';
+                card.onclick = () => {
+                    window.location.href = `reader.html?book=${selectedBookId}&page=${chapter.page}&chapter=${chapter.number}`;
+                };
+                const chapterLabel = chapter.number === 0 ? 'הקדמה' : `פרק ${chapter.number}`;
+                card.innerHTML = `
+                    <div class="chapter-number">${chapterLabel}</div>
+                    <h3>${chapter.name}</h3>
+                    <div class="page-number">עמוד ${chapter.page}</div>
+                    <a href="reader.html?book=${selectedBookId}&page=${chapter.page}&chapter=${chapter.number}" class="btn-read">קראו כאן</a>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // Load books on page load
+        loadBooks();
+    </script>
+    <script src="chat-component.js"></script>
+</body>
+</html>
+
