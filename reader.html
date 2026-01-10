@@ -177,7 +177,6 @@
             line-height: 1.1;
             font-size: 1.1rem;
             white-space: pre-wrap;
-            text-align: justify;
         }
 
         .pdf-viewer {
@@ -253,7 +252,7 @@
             border-bottom: 2px solid #F5F5DC;
         }
 
-        .btn-edit, .btn-save, .btn-cancel {
+        .btn-edit, .btn-save, .btn-cancel, .btn-justify {
             padding: 0.5rem 1rem;
             border: 2px solid #556B2F;
             background: #556B2F;
@@ -263,6 +262,12 @@
             font-family: inherit;
             font-size: 0.9rem;
             transition: background 0.3s;
+        }
+
+        .btn-justify.active {
+            background: #3E2723;
+            border-color: #3E2723;
+            font-weight: 600;
         }
 
         .font-controls, .line-spacing-controls {
@@ -325,6 +330,41 @@
 
         .save-status.error {
             color: #c62828;
+        }
+
+        .segmented-control {
+            display: flex;
+            gap: 0;
+            border: 2px solid #556B2F;
+            border-radius: 4px;
+            overflow: hidden;
+            background: #556B2F;
+        }
+
+        .segmented-btn {
+            padding: 0.5rem 0.75rem;
+            border: none;
+            background: transparent;
+            color: #F5F5DC;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 0.85rem;
+            transition: background 0.3s;
+            border-left: 1px solid rgba(245, 245, 220, 0.3);
+            flex: 1;
+        }
+
+        .segmented-btn:first-child {
+            border-left: none;
+        }
+
+        .segmented-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .segmented-btn.active {
+            background: #3E2723;
+            font-weight: 600;
         }
 
         .verification-indicator {
@@ -391,15 +431,27 @@
             font-family: inherit;
             font-size: 1.1rem;
             line-height: 1.1;
-            text-align: right;
             direction: rtl;
             resize: vertical;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+        
+        .text-edit[contenteditable="true"] {
+            text-align: right;
         }
 
         .text-edit:focus {
             outline: none;
             border-color: #3E2723;
             box-shadow: 0 0 0 3px rgba(85, 107, 47, 0.1);
+        }
+        
+        .text-edit {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
         }
 
         /* Mobile responsive */
@@ -502,6 +554,7 @@
                         <span class="verification-text" id="verificationText">לא נבדק</span>
                     </div>
                     <button class="btn-edit" id="editBtn" onclick="toggleEditMode()">ערוך טקסט</button>
+                    <button class="btn-justify" id="smartJustifyBtn" onclick="toggleSmartJustify()" style="display: none;" title="החלף בין טקסט מקורי ל-justified">Justify</button>
                     <div class="font-controls">
                         <button class="btn-control" onclick="adjustFontSize(-1)" title="הקטן גופן">-</button>
                         <button class="btn-control" onclick="adjustFontSize(1)" title="הגדל גופן">+</button>
@@ -839,7 +892,7 @@
                 
                 container.innerHTML = `<div class="text-content">${escapeHtml(text)}</div>`;
                 
-                // Apply text styles (font size and line height)
+                // Apply text styles (font size, line height, and text align)
                 applyTextStyles();
                 
                 // Show edit controls if text loaded successfully
@@ -887,16 +940,27 @@
             const saveStatus = document.getElementById('saveStatus');
             
             if (!isEditMode) {
-                // Enter edit mode
+                // Enter edit mode - use contenteditable div instead of textarea for justify support
                 isEditMode = true;
-                const textarea = document.createElement('textarea');
-                textarea.className = 'text-edit';
-                textarea.value = originalText;
+                const editDiv = document.createElement('div');
+                editDiv.className = 'text-edit';
+                editDiv.contentEditable = 'true';
+                editDiv.textContent = originalText;
                 container.innerHTML = '';
-                container.appendChild(textarea);
+                container.appendChild(editDiv);
                 
-                // Apply text styles to textarea
-                applyTextStyles();
+                // Apply text styles immediately
+                setTimeout(() => {
+                    applyTextStyles();
+                }, 0);
+                
+                // Show smart justify button in edit mode
+                const smartJustifyBtn = document.getElementById('smartJustifyBtn');
+                if (smartJustifyBtn) {
+                    smartJustifyBtn.style.display = 'inline-block';
+                    smartJustifyBtn.textContent = 'Justify';
+                    smartJustifyBtn.disabled = false;
+                }
                 
                 editBtn.style.display = 'none';
                 saveBtn.style.display = 'inline-block';
@@ -922,19 +986,59 @@
             saveBtn.style.display = 'none';
             cancelBtn.style.display = 'none';
             saveStatus.textContent = '';
+            
+            // Hide smart justify button when canceling edit
+            const smartJustifyBtn = document.getElementById('smartJustifyBtn');
+            if (smartJustifyBtn) {
+                smartJustifyBtn.style.display = 'none';
+            }
         }
         
         async function saveText() {
             const container = document.getElementById('textContainer');
-            const textarea = container.querySelector('.text-edit');
+            const textEdit = container.querySelector('.text-edit');
             const saveBtn = document.getElementById('saveBtn');
             const saveStatus = document.getElementById('saveStatus');
             
-            if (!textarea) {
+            if (!textEdit) {
                 return;
             }
             
-            const editedText = textarea.value;
+            // Get text from contenteditable div or textarea
+            let editedText;
+            if (textEdit.contentEditable === 'true') {
+                // Walk through DOM nodes to properly extract text with newlines
+                // This preserves <br> tags as actual newlines
+                function extractTextWithNewlines(node) {
+                    let text = '';
+                    for (let child of node.childNodes) {
+                        if (child.nodeType === Node.TEXT_NODE) {
+                            text += child.textContent;
+                        } else if (child.nodeType === Node.ELEMENT_NODE) {
+                            if (child.tagName === 'BR' || child.tagName === 'br') {
+                                text += '\n';
+                            } else {
+                                text += extractTextWithNewlines(child);
+                            }
+                        }
+                    }
+                    return text;
+                }
+                
+                editedText = extractTextWithNewlines(textEdit);
+                
+                // Normalize newlines (handle Windows \r\n and Mac \r)
+                editedText = editedText.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+            } else {
+                editedText = textEdit.value;
+            }
+            
+            // Validate text
+            if (!editedText && editedText !== '') {
+                saveStatus.textContent = 'שגיאה: לא ניתן לשמור טקסט ריק';
+                saveStatus.className = 'save-status error';
+                return;
+            }
             
             // Disable save button during save
             saveBtn.disabled = true;
@@ -973,9 +1077,13 @@
                 
                 const editBtn = document.getElementById('editBtn');
                 const cancelBtn = document.getElementById('cancelBtn');
+                const smartJustifyBtn = document.getElementById('smartJustifyBtn');
                 editBtn.style.display = 'inline-block';
                 saveBtn.style.display = 'none';
                 cancelBtn.style.display = 'none';
+                if (smartJustifyBtn) {
+                    smartJustifyBtn.style.display = 'none';
+                }
                 
                 saveStatus.textContent = 'נשמר בהצלחה!';
                 saveStatus.className = 'save-status success';
@@ -1071,6 +1179,67 @@
             applyTextStyles();
         }
         
+        async function toggleSmartJustify() {
+            const textEdit = document.querySelector('.text-edit');
+            if (!textEdit || textEdit.contentEditable !== 'true') return;
+            
+            const smartJustifyBtn = document.getElementById('smartJustifyBtn');
+            
+            // Check if already justified
+            const isJustified = textEdit.dataset.justified === 'true';
+            
+            if (!isJustified) {
+                // First time - save original to .orig file
+                const originalText = textEdit.textContent || textEdit.innerText;
+                
+                try {
+                    // Save original text to .orig file
+                    const response = await fetch('/api/save-orig', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            bookId: currentBookId,
+                            page: currentPageStr,
+                            text: originalText
+                        })
+                    });
+                    
+                    if (!response.ok) {
+                        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+                        console.error('Error response:', errorData);
+                        throw new Error(errorData.error || `Failed to save original file (status: ${response.status})`);
+                    }
+                    
+                    // Store original text in dataset
+                    textEdit.dataset.originalText = originalText;
+                    textEdit.dataset.justified = 'true';
+                    
+                    // Apply justify
+                    applySmartBookJustify(textEdit);
+                    
+                    if (smartJustifyBtn) {
+                        smartJustifyBtn.textContent = 'Justify (מקורי)';
+                    }
+                } catch (error) {
+                    console.error('Error saving original file:', error);
+                    console.error('Error details:', error.message, error.stack);
+                    alert(`שגיאה בשמירת הקובץ המקורי: ${error.message}\n\nנסה לבדוק את ה-console לפרטים נוספים.`);
+                }
+            } else {
+                // Toggle back to original
+                if (textEdit.dataset.originalText) {
+                    textEdit.textContent = textEdit.dataset.originalText;
+                    textEdit.dataset.justified = 'false';
+                    
+                    if (smartJustifyBtn) {
+                        smartJustifyBtn.textContent = 'Justify';
+                    }
+                }
+            }
+        }
+        
         function applyTextStyles() {
             const textContainer = document.getElementById('textContainer');
             const textContent = textContainer.querySelector('.text-content');
@@ -1079,12 +1248,377 @@
             if (textContent) {
                 textContent.style.fontSize = `${currentFontSize}rem`;
                 textContent.style.lineHeight = currentLineHeight.toString();
+                textContent.style.setProperty('text-align', 'right', 'important');
             }
             
             if (textEdit) {
                 textEdit.style.fontSize = `${currentFontSize}rem`;
                 textEdit.style.lineHeight = currentLineHeight.toString();
+                textEdit.style.setProperty('text-align', 'right', 'important');
+                textEdit.style.setProperty('text-align-last', 'right', 'important');
+                // Remove any justify-related styles
+                textEdit.style.removeProperty('text-justify');
+                textEdit.style.removeProperty('word-spacing');
+                textEdit.style.removeProperty('letter-spacing');
             }
+        }
+        
+        function getTextFromEdit() {
+            const textEdit = document.querySelector('.text-edit');
+            if (textEdit) {
+                // If it's contenteditable div, use textContent or innerText
+                if (textEdit.contentEditable === 'true') {
+                    // Get text - return original if stored (without extra spaces), otherwise current text
+                    if (textEdit.dataset.originalText) {
+                        return textEdit.dataset.originalText;
+                    }
+                    const text = textEdit.textContent || textEdit.innerText;
+                    return text;
+                } else {
+                    // If it's textarea, use value
+                    return textEdit.value;
+                }
+            }
+            return '';
+        }
+        
+        // Store original text before justify processing
+        let originalTextBeforeJustify = '';
+        
+        function applySmartBookJustify(element) {
+            if (!element || element.contentEditable !== 'true') return;
+            
+            // Store original text if not already stored
+            if (!element.dataset.originalText) {
+                originalTextBeforeJustify = element.textContent || element.innerText;
+                element.dataset.originalText = originalTextBeforeJustify;
+            } else {
+                originalTextBeforeJustify = element.dataset.originalText;
+            }
+            
+            // Create a reusable measurement element once (more efficient)
+            const measureSpan = document.createElement('span');
+            const computedStyle = window.getComputedStyle(element);
+            
+            // Copy all relevant styles from the element to ensure accurate measurement
+            measureSpan.style.visibility = 'hidden';
+            measureSpan.style.position = 'absolute';
+            measureSpan.style.whiteSpace = 'nowrap';
+            measureSpan.style.fontSize = computedStyle.fontSize;
+            measureSpan.style.fontFamily = computedStyle.fontFamily;
+            measureSpan.style.fontWeight = computedStyle.fontWeight;
+            measureSpan.style.fontStyle = computedStyle.fontStyle;
+            measureSpan.style.letterSpacing = computedStyle.letterSpacing;
+            measureSpan.style.wordSpacing = computedStyle.wordSpacing;
+            measureSpan.style.direction = computedStyle.direction || 'rtl';
+            measureSpan.style.textTransform = computedStyle.textTransform;
+            measureSpan.style.fontVariant = computedStyle.fontVariant;
+            
+            // Ensure it's in the DOM and rendered
+            document.body.appendChild(measureSpan);
+            
+            // Force a reflow to ensure styles are applied
+            measureSpan.offsetHeight;
+            
+            // Helper function to measure text width using the reusable element
+            const measureTextWidth = (text) => {
+                measureSpan.textContent = text;
+                // Force a reflow to ensure measurement is accurate
+                const width = measureSpan.offsetWidth;
+                
+                // If width is 0, try alternative measurement methods
+                if (width === 0 && text.length > 0) {
+                    // Try using getBoundingClientRect as fallback
+                    const rect = measureSpan.getBoundingClientRect();
+                    if (rect.width > 0) {
+                        return rect.width;
+                    }
+                    // If still 0, log warning and return a fallback estimate
+                    console.warn(`Could not measure width for text: "${text.substring(0, 20)}..."`);
+                    return null;
+                }
+                
+                return width;
+            };
+            
+            // Split text into lines, preserving empty lines
+            const allLines = originalTextBeforeJustify.split('\n');
+            
+            // Group lines into paragraphs (paragraphs are separated by empty lines)
+            const paragraphs = [];
+            let currentParagraph = [];
+            
+            for (let i = 0; i < allLines.length; i++) {
+                const line = allLines[i];
+                if (line.trim() === '' && currentParagraph.length > 0) {
+                    // Empty line after non-empty content - end current paragraph
+                    paragraphs.push(currentParagraph);
+                    currentParagraph = [];
+                } else if (line.trim() !== '') {
+                    // Non-empty line - add to current paragraph
+                    currentParagraph.push(line);
+                } else if (line.trim() === '' && currentParagraph.length === 0) {
+                    // Empty line at start or between paragraphs - preserve as empty paragraph
+                    paragraphs.push([]);
+                }
+            }
+            // Add last paragraph if exists
+            if (currentParagraph.length > 0) {
+                paragraphs.push(currentParagraph);
+            }
+            
+            let processedHTML = '';
+            
+            paragraphs.forEach((paragraph, paraIndex) => {
+                // Empty paragraph (empty line) - just add line break
+                if (paragraph.length === 0) {
+                    processedHTML += '<br>';
+                    return;
+                }
+                
+                const lines = paragraph;
+                
+                if (lines.length === 0) {
+                    processedHTML += '<br><br>';
+                    return;
+                }
+                
+                // Find the longest line by actual rendered width (excluding last line)
+                const linesToProcess = lines.slice(0, -1); // All except last line
+                if (linesToProcess.length === 0) {
+                    // Only one line, don't modify
+                    processedHTML += lines[0] + '<br>';
+                    return;
+                }
+                
+                // Measure actual rendered width for each line
+                const lineData = linesToProcess.map(line => {
+                    const trimmed = line.trim();
+                    const width = measureTextWidth(trimmed);
+                    return {
+                        line: trimmed,
+                        width: width
+                    };
+                }).filter(l => l.width !== null && l.width > 0); // Filter out invalid measurements
+                
+                // If no valid measurements, fall back to character-based
+                if (lineData.length === 0) {
+                    console.warn('Could not measure any lines, using character-based fallback');
+                    const maxLength = Math.max(...linesToProcess.map(l => l.trim().length));
+                    linesToProcess.forEach(line => {
+                        const trimmed = line.trim();
+                        if (trimmed.length === maxLength) {
+                            processedHTML += trimmed + '<br>';
+                        } else {
+                            // Simple character-based justification
+                            const words = trimmed.split(/\s+/).filter(w => w.trim());
+                            if (words.length <= 1) {
+                                processedHTML += trimmed + '<br>';
+                            } else {
+                                const charsToAdd = maxLength - trimmed.length;
+                                const gaps = words.length - 1;
+                                const baseSpaces = Math.floor(charsToAdd / gaps);
+                                const remainder = charsToAdd % gaps;
+                                let processedLine = '';
+                                for (let i = 0; i < words.length; i++) {
+                                    processedLine += words[i];
+                                    if (i < words.length - 1) {
+                                        let spaces = 1 + baseSpaces + (i < remainder ? 1 : 0);
+                                        spaces = Math.max(0, Math.min(spaces, 100));
+                                        processedLine += ' '.repeat(spaces);
+                                    }
+                                }
+                                processedHTML += processedLine + '<br>';
+                            }
+                        }
+                    });
+                    return; // Exit early
+                }
+                
+                // Find the longest line by actual width
+                const maxWidth = Math.max(...lineData.map(l => l.width));
+                
+                // Measure width of a single space - try multiple methods for reliability
+                let singleSpaceWidth = measureTextWidth(' ');
+                
+                // If direct measurement fails, try measuring "a a" vs "aa" and calculating difference
+                if (!singleSpaceWidth || singleSpaceWidth <= 0 || !isFinite(singleSpaceWidth)) {
+                    const widthAA = measureTextWidth('aa');
+                    const widthA_A = measureTextWidth('a a');
+                    if (widthAA && widthA_A && widthA_A > widthAA) {
+                        singleSpaceWidth = widthA_A - widthAA;
+                        console.log(`Calculated space width from difference: ${singleSpaceWidth}px`);
+                    }
+                }
+                
+                // If still invalid, try measuring a longer string with spaces
+                if (!singleSpaceWidth || singleSpaceWidth <= 0 || !isFinite(singleSpaceWidth)) {
+                    const widthWithSpaces = measureTextWidth('     '); // 5 spaces
+                    if (widthWithSpaces && widthWithSpaces > 0) {
+                        singleSpaceWidth = widthWithSpaces / 5;
+                        console.log(`Calculated space width from 5 spaces: ${singleSpaceWidth}px`);
+                    }
+                }
+                
+                // Validate singleSpaceWidth - if it's still 0 or invalid, fall back to character-based approach
+                if (!singleSpaceWidth || singleSpaceWidth <= 0 || !isFinite(singleSpaceWidth)) {
+                    console.warn('Could not measure space width, using character-based fallback');
+                    // Fallback: use character count method
+                    const maxLength = Math.max(...lineData.map(l => l.line.length));
+                    lineData.forEach((lineInfo) => {
+                        const line = lineInfo.line;
+                        const currentLength = line.length;
+                        
+                        if (currentLength === maxLength) {
+                            processedHTML += line + '<br>';
+                            return;
+                        }
+                        
+                        const charsToAdd = maxLength - currentLength;
+                        if (charsToAdd <= 0) {
+                            processedHTML += line + '<br>';
+                            return;
+                        }
+                        
+                        const words = line.split(/\s+/).filter(w => w.trim().length > 0);
+                        const wordCount = words.length;
+                        
+                        if (wordCount <= 1) {
+                            processedHTML += line + '<br>';
+                            return;
+                        }
+                        
+                        const gaps = wordCount - 1;
+                        const baseSpacesPerGap = Math.floor(charsToAdd / gaps);
+                        const remainder = charsToAdd % gaps;
+                        
+                        let processedLine = '';
+                        for (let i = 0; i < words.length; i++) {
+                            processedLine += words[i];
+                            if (i < words.length - 1) {
+                                let spacesToInsert = 1 + baseSpacesPerGap;
+                                if (i < remainder) {
+                                    spacesToInsert += 1;
+                                }
+                                // Safety check before repeat
+                                spacesToInsert = Math.max(0, Math.min(spacesToInsert, 100)); // Limit to reasonable value
+                                processedLine += ' '.repeat(spacesToInsert);
+                            }
+                        }
+                        processedHTML += processedLine + '<br>';
+                    });
+                    return; // Exit early for fallback
+                }
+                
+                // Process each line (except last) - justify all to maxWidth
+                lineData.forEach((lineInfo) => {
+                    const line = lineInfo.line;
+                    const currentWidth = lineInfo.width;
+                    
+                    // If already at max width (within 2px tolerance), no need to modify
+                    if (Math.abs(currentWidth - maxWidth) < 2) {
+                        processedHTML += line + '<br>';
+                        return;
+                    }
+                    
+                    // Calculate how much width we need to add
+                    const widthToAdd = maxWidth - currentWidth;
+                    
+                    if (widthToAdd <= 0 || !isFinite(widthToAdd)) {
+                        processedHTML += line + '<br>';
+                        return;
+                    }
+                    
+                    // Split line into words (only actual words, not spaces)
+                    const words = line.split(/\s+/).filter(w => w.trim().length > 0);
+                    const wordCount = words.length;
+                    
+                    if (wordCount <= 1) {
+                        processedHTML += line + '<br>';
+                        return;
+                    }
+                    
+                    // Calculate how many spaces we need to add
+                    const totalSpacesToAdd = Math.round(widthToAdd / singleSpaceWidth);
+                    
+                    // Validate totalSpacesToAdd
+                    if (!isFinite(totalSpacesToAdd) || totalSpacesToAdd <= 0 || totalSpacesToAdd > 1000) {
+                        console.warn(`Invalid totalSpacesToAdd: ${totalSpacesToAdd}, skipping line`);
+                        processedHTML += line + '<br>';
+                        return;
+                    }
+                    
+                    // Distribute spaces evenly between word gaps
+                    const gaps = wordCount - 1;
+                    if (gaps <= 0) {
+                        processedHTML += line + '<br>';
+                        return;
+                    }
+                    
+                    const baseSpacesPerGap = Math.floor(totalSpacesToAdd / gaps);
+                    const remainder = totalSpacesToAdd % gaps;
+                    
+                    // Build line with distributed spaces
+                    let processedLine = '';
+                    
+                    for (let i = 0; i < words.length; i++) {
+                        processedLine += words[i];
+                        
+                        // Add spaces after word (except for last word)
+                        if (i < words.length - 1) {
+                            // Base space (1) + extra spaces to reach target width
+                            let spacesToInsert = 1 + baseSpacesPerGap;
+                            
+                            // Distribute remainder spaces to first few gaps
+                            if (i < remainder) {
+                                spacesToInsert += 1;
+                            }
+                            
+                            // Safety check: ensure spacesToInsert is a valid finite number
+                            spacesToInsert = Math.max(0, Math.min(Math.floor(spacesToInsert), 100)); // Limit to 0-100
+                            
+                            if (isFinite(spacesToInsert) && spacesToInsert > 0) {
+                                processedLine += ' '.repeat(spacesToInsert);
+                            } else {
+                                processedLine += ' '; // Fallback to single space
+                            }
+                        }
+                    }
+                    
+                    // Verify the width matches (for debugging)
+                    const finalWidth = measureTextWidth(processedLine);
+                    if (Math.abs(finalWidth - maxWidth) > 3) {
+                        console.warn(`Width mismatch: expected ${maxWidth}px, got ${finalWidth}px`);
+                    }
+                    
+                    processedHTML += processedLine + '<br>';
+                });
+                
+                // Add last line of paragraph without modification
+                processedHTML += lines[lines.length - 1];
+                // Add line break after paragraph (empty lines between paragraphs are handled as separate paragraphs)
+                processedHTML += '<br>';
+            });
+            
+            // Clean up the measurement element
+            document.body.removeChild(measureSpan);
+            
+            // Apply the processed HTML
+            element.innerHTML = processedHTML;
+        }
+        
+        function removeSmartBookJustify(element) {
+            if (!element) return;
+            // Restore original text
+            if (element.dataset.originalText) {
+                element.textContent = element.dataset.originalText;
+                delete element.dataset.originalText;
+            }
+        }
+        
+        function removeExtraJustifySpaces(text) {
+            // Remove multiple consecutive spaces, keep single spaces
+            return text.replace(/  +/g, ' ').replace(/\n\s*\n\s*\n+/g, '\n\n');
         }
         
         async function loadGallery(pageStr) {

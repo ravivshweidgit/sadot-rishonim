@@ -543,6 +543,73 @@ app.post('/api/verification', async (req, res) => {
     }
 });
 
+// API endpoint to save original text file (.orig)
+app.post('/api/save-orig', async (req, res) => {
+    try {
+        const { bookId, page, text } = req.body;
+        
+        console.log('Saving .orig file:', { bookId, page, textLength: text?.length });
+        
+        if (!bookId || page === undefined || text === undefined) {
+            return res.status(400).json({ error: 'Missing required fields: bookId, page, text' });
+        }
+        
+        // Validate book exists
+        booksConfig = loadBooksConfig();
+        if (!booksConfig.books[bookId]) {
+            return res.status(404).json({ error: 'Book not found' });
+        }
+        
+        // Construct file path for .orig file - use the same format as the original .txt file
+        const pageStr = String(page).padStart(3, '0');
+        const pageNum = parseInt(page);
+        
+        // Try to determine which format the original file uses (padded or unpadded)
+        const textDir = path.join(__dirname, 'books', bookId, 'text');
+        const paddedPath = path.join(textDir, `${pageStr}.txt`);
+        const unpaddedPath = path.join(textDir, `${pageNum}.txt`);
+        
+        let actualOrigPath;
+        try {
+            // Check if padded version exists
+            await fs.access(paddedPath);
+            actualOrigPath = path.join(textDir, `${pageStr}.txt.orig`);
+        } catch (e) {
+            // Try unpadded version
+            try {
+                await fs.access(unpaddedPath);
+                actualOrigPath = path.join(textDir, `${pageNum}.txt.orig`);
+            } catch (e2) {
+                // Neither exists, use padded format by default
+                actualOrigPath = path.join(textDir, `${pageStr}.txt.orig`);
+            }
+        }
+        
+        console.log('Saving to:', actualOrigPath);
+        
+        // Ensure directory exists
+        try {
+            await fs.mkdir(textDir, { recursive: true });
+        } catch (dirError) {
+            console.error('Error creating directory:', dirError);
+            // Continue anyway, directory might already exist
+        }
+        
+        // Write .orig file
+        try {
+            await fs.writeFile(actualOrigPath, text, 'utf-8');
+            console.log('Successfully saved .orig file to:', actualOrigPath);
+            res.json({ success: true, message: 'Original file saved successfully', path: actualOrigPath });
+        } catch (writeError) {
+            console.error('Error writing file:', writeError);
+            throw writeError;
+        }
+    } catch (error) {
+        console.error('Error saving original file:', error);
+        res.status(500).json({ error: 'Error saving original file', details: error.message });
+    }
+});
+
 // Serve book files
 app.use('/books', express.static('books'));
 
