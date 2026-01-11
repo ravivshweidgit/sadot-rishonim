@@ -1022,16 +1022,33 @@
             let editedText;
             if (textEdit.contentEditable === 'true') {
                 // Walk through DOM nodes to properly extract text with newlines
-                // This preserves <br> tags as actual newlines
+                // This preserves <br> tags and block elements (div, p) as actual newlines
                 function extractTextWithNewlines(node) {
                     let text = '';
                     for (let child of node.childNodes) {
                         if (child.nodeType === Node.TEXT_NODE) {
                             text += child.textContent;
                         } else if (child.nodeType === Node.ELEMENT_NODE) {
-                            if (child.tagName === 'BR' || child.tagName === 'br') {
+                            const tagName = child.tagName ? child.tagName.toUpperCase() : '';
+                            
+                            // Handle line breaks
+                            if (tagName === 'BR') {
                                 text += '\n';
-                            } else {
+                            } 
+                            // Handle block elements (div, p) - they represent newlines
+                            else if (tagName === 'DIV' || tagName === 'P') {
+                                // Add newline before block element content (except first)
+                                if (text && !text.endsWith('\n')) {
+                                    text += '\n';
+                                }
+                                text += extractTextWithNewlines(child);
+                                // Add newline after block element (except last)
+                                if (!text.endsWith('\n')) {
+                                    text += '\n';
+                                }
+                            } 
+                            // Handle other elements recursively
+                            else {
                                 text += extractTextWithNewlines(child);
                             }
                         }
@@ -1041,8 +1058,14 @@
                 
                 editedText = extractTextWithNewlines(textEdit);
                 
+                // Clean up: remove multiple consecutive newlines (keep max 2 for paragraph breaks)
+                editedText = editedText.replace(/\n{3,}/g, '\n\n');
+                
                 // Normalize newlines (handle Windows \r\n and Mac \r)
                 editedText = editedText.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+                
+                // Trim trailing newlines
+                editedText = editedText.replace(/\n+$/, '');
             } else {
                 editedText = textEdit.value;
             }

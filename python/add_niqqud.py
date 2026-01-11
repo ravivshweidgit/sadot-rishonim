@@ -15,8 +15,33 @@ import time
 if sys.platform == 'win32':
     sys.stdout.reconfigure(encoding='utf-8')
 
-# Configure the API key
-API_KEY = "AIzaSyDFOH_cK4w2neobchhAWYp1te7b9Aj75jI"
+# Configure the API key - read from local file (not committed to git)
+def load_api_key():
+    """Load API key from api_key.txt file"""
+    script_dir = Path(__file__).parent
+    api_key_file = script_dir / "api_key.txt"
+    
+    if api_key_file.exists():
+        with open(api_key_file, 'r', encoding='utf-8') as f:
+            # Read the file and get the first non-empty, non-comment line
+            for line in f:
+                line = line.strip()
+                if line and not line.startswith('#'):
+                    return line
+    
+    # Fallback: check environment variable
+    api_key = os.getenv('GEMINI_API_KEY')
+    if api_key:
+        return api_key
+    
+    # If no key found, raise an error with helpful message
+    raise ValueError(
+        f"API key not found!\n"
+        f"Please create {api_key_file} and add your Google Gemini API key.\n"
+        f"Get your API key from: https://aistudio.google.com/apikey"
+    )
+
+API_KEY = load_api_key()
 genai.configure(api_key=API_KEY)
 
 # Initialize the model - use gemini-2.0-flash-exp for better Hebrew support

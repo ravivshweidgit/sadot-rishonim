@@ -17,3 +17,5 @@ Thumbs.db
 .vscode/
 .idea/
 
+# API Keys (never commit these!)
+python/api_key.txt
