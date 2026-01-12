@@ -13,13 +13,35 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static('.')); // Serve static files
 
-// Load Gemini API key from environment variable, config file, or use default (same as Python script)
+// Load Gemini API key from environment variable, config file, or api_key.txt (same as Python script)
 let GEMINI_API_KEY = process.env.GEMINI_API_KEY || '';
 
-// Fallback: Try to read from a config file or use the same key as Python OCR script
+// Fallback: Try to read from api_key.txt file (same location as Python scripts)
 if (!GEMINI_API_KEY) {
     try {
-        // Try to read from a config file if it exists
+        const apiKeyPath = path.join(__dirname, 'python', 'api_key.txt');
+        if (fsSync.existsSync(apiKeyPath)) {
+            const apiKeyContent = fsSync.readFileSync(apiKeyPath, 'utf-8');
+            // Read the first non-empty, non-comment line
+            for (const line of apiKeyContent.split('\n')) {
+                const trimmed = line.trim();
+                if (trimmed && !trimmed.startsWith('#')) {
+                    GEMINI_API_KEY = trimmed;
+                    console.log('✅ Loaded API key from python/api_key.txt');
+                    break;
+                }
+            }
+        } else {
+            console.warn('⚠️  python/api_key.txt not found');
+        }
+    } catch (e) {
+        console.warn('Could not read API key from python/api_key.txt:', e.message);
+    }
+}
+
+// Fallback: Try to read from a config file if it exists
+if (!GEMINI_API_KEY) {
+    try {
         const configPath = path.join(__dirname, 'config.json');
         if (fsSync.existsSync(configPath)) {
             const config = require('./config.json');
@@ -30,10 +52,10 @@ if (!GEMINI_API_KEY) {
     }
 }
 
-// Fallback: Use the same API key as Python OCR script (for local development)
 if (!GEMINI_API_KEY) {
-    GEMINI_API_KEY = 'AIzaSyDFOH_cK4w2neobchhAWYp1te7b9Aj75jI';
-    console.log('✅ Using default API key (same as Python OCR script)');
+    console.error('⚠️  GEMINI_API_KEY not found!');
+    console.error('   Please set GEMINI_API_KEY environment variable or create python/api_key.txt');
+    console.error('   Get your API key from: https://aistudio.google.com/apikey');
 }
 
 const genAI = GEMINI_API_KEY ? new GoogleGenerativeAI(GEMINI_API_KEY) : null;
@@ -621,7 +643,8 @@ app.listen(PORT, () => {
         console.log(`   - ${booksConfig.books[bookId].name} (${bookId})`);
     });
     if (!GEMINI_API_KEY) {
-        console.log(`⚠️  Set GEMINI_API_KEY environment variable to enable AI Chat`);
+        console.log(`⚠️  Set GEMINI_API_KEY environment variable or create python/api_key.txt to enable AI Chat`);
+        console.log(`   Get your API key from: https://aistudio.google.com/apikey`);
     } else {
         console.log(`✅ Gemini API configured`);
     }

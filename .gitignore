@@ -19,3 +19,10 @@ Thumbs.db
 
 # API Keys (never commit these!)
 python/api_key.txt
+
+# Python cache files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python

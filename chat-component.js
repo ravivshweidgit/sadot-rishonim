@@ -163,7 +163,21 @@ class YehudaChat {
             });
             
             if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+                // Try to get error details from response
+                let errorMessage = `HTTP error! status: ${response.status}`;
+                try {
+                    const errorData = await response.json();
+                    if (errorData.error) {
+                        errorMessage = errorData.error;
+                        if (errorData.details) {
+                            errorMessage += `: ${errorData.details}`;
+                        }
+                    }
+                } catch (e) {
+                    // If response is not JSON, use status text
+                    errorMessage = `HTTP ${response.status}: ${response.statusText}`;
+                }
+                throw new Error(errorMessage);
             }
             
             const data = await response.json();
@@ -193,8 +207,16 @@ class YehudaChat {
             const loadingEl = document.getElementById(loadingId);
             if (loadingEl) loadingEl.remove();
             
-            // Show error message
-            this.addMessage('assistant', 'מצטער, אירעה שגיאה. אנא נסה שוב מאוחר יותר.');
+            // Show error message with details
+            let errorMessage = 'מצטער, אירעה שגיאה. אנא נסה שוב מאוחר יותר.';
+            if (error.message) {
+                console.error('Error details:', error.message);
+                // Show more details in development
+                if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                    errorMessage += `\n\nשגיאה: ${error.message}`;
+                }
+            }
+            this.addMessage('assistant', errorMessage);
         } finally {
             input.disabled = false;
             input.focus();
