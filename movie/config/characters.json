@@ -1,0 +1,97 @@
+{
+  "characters": {
+    "yosef": {
+      "id": "yosef",
+      "hebrew_name": "יוסף מרקובסקי",
+      "english_name": "Yosef Markovsky",
+      "role": "father",
+      "description": "אב המשפחה, מורה, הקים בית ספר עברי",
+      "time_period": "1900-1921",
+      "key_locations": ["metula", "jaffa", "russia"],
+      "age_range": {
+        "1904": "adult",
+        "1921": "elderly"
+      }
+    },
+    "moriah": {
+      "id": "moriah",
+      "hebrew_name": "מורייה מרקובסקי",
+      "english_name": "Moriah Markovsky",
+      "role": "mother",
+      "description": "אם המשפחה",
+      "time_period": "1900-1921",
+      "key_locations": ["metula", "jaffa"],
+      "age_range": {
+        "1904": "adult",
+        "1921": "elderly"
+      }
+    },
+    "yehuda": {
+      "id": "yehuda",
+      "hebrew_name": "יהודה מרקובסקי",
+      "english_name": "Yehuda Markovsky",
+      "role": "son, author",
+      "description": "בן המשפחה, מחבר 'שדות ראשונים', עלה ארצה כילד ב-1904",
+      "time_period": "1904-1921",
+      "key_locations": ["metula", "jaffa", "nahalal", "tel_hai"],
+      "age_range": {
+        "1904": "child",
+        "1910": "teenager",
+        "1920": "young_adult",
+        "1921": "adult"
+      }
+    },
+    "ruchama": {
+      "id": "ruchama",
+      "hebrew_name": "רוחמה שחר (מרקובסקי)",
+      "english_name": "Ruchama Shachar (Markovsky)",
+      "role": "daughter, author",
+      "description": "בת המשפחה, מחברת 'בית מרקובסקי'",
+      "time_period": "1900-1921",
+      "key_locations": ["metula", "jaffa"],
+      "age_range": {
+        "1904": "child",
+        "1921": "young_adult"
+      }
+    },
+    "emmanuel": {
+      "id": "emmanuel",
+      "hebrew_name": "עמנואל מרקובסקי",
+      "english_name": "Emmanuel Markovsky",
+      "role": "son",
+      "description": "בן המשפחה",
+      "time_period": "1900-1921",
+      "key_locations": ["metula"],
+      "age_range": {
+        "1904": "child",
+        "1921": "teenager"
+      }
+    },
+    "tirza": {
+      "id": "tirza",
+      "hebrew_name": "תרצה מרקובסקי",
+      "english_name": "Tirza Markovsky",
+      "role": "daughter",
+      "description": "בת המשפחה",
+      "time_period": "1900-1921",
+      "key_locations": ["metula"],
+      "age_range": {
+        "1904": "child",
+        "1921": "teenager"
+      }
+    },
+    "vazrach": {
+      "id": "vazrach",
+      "hebrew_name": "ואזרח מרקובסקי",
+      "english_name": "Vazrach Markovsky",
+      "role": "son",
+      "description": "בן המשפחה",
+      "time_period": "1900-1921",
+      "key_locations": ["metula"],
+      "age_range": {
+        "1904": "child",
+        "1921": "teenager"
+      }
+    }
+  }
+}

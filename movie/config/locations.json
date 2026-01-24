@@ -1,0 +1,101 @@
+{
+  "locations": {
+    "metula": {
+      "id": "metula",
+      "hebrew_name": "מטולה",
+      "english_name": "Metula",
+      "description": "מושבה קטנה במרום הגליל העליון, שתי שורות בתים ברחוב אחד",
+      "time_period": "1900-1921",
+      "key_features": [
+        "רחוב אחד גבנוני",
+        "שתי שורות בתים",
+        "מבט על הרי הלבנון והחרמון",
+        "עמק עיון ונחל התנור",
+        "שדות פלחה",
+        "אדמות ההר ואדמות המים"
+      ],
+      "important_buildings": [
+        "בית הכנסת",
+        "בית הספר",
+        "בית המורה",
+        "בית הרופא",
+        "מרפאה",
+        "בית הפקידות",
+        "חנות המכולת"
+      ]
+    },
+    "jaffa": {
+      "id": "jaffa",
+      "hebrew_name": "יפו",
+      "english_name": "Jaffa",
+      "description": "נמל יפו, נקודת הכניסה לארץ ישראל",
+      "time_period": "1904",
+      "key_features": [
+        "נמל",
+        "סירות",
+        "ספנים ערבים",
+        "אוניות"
+      ]
+    },
+    "nahalal": {
+      "id": "nahalal",
+      "hebrew_name": "נהלל",
+      "english_name": "Nahalal",
+      "description": "מושב העובדים הראשון, יסודו ב-1921",
+      "time_period": "1921",
+      "key_features": [
+        "מושב עובדים",
+        "שדות",
+        "עבודה חקלאית",
+        "תכנון מעגלי"
+      ]
+    },
+    "tel_hai": {
+      "id": "tel_hai",
+      "hebrew_name": "תל-חי",
+      "english_name": "Tel Hai",
+      "description": "מבצר תל-חי, אירועי תל-חי 1920",
+      "time_period": "1920",
+      "key_features": [
+        "מבצר",
+        "הגנה",
+        "טרומפלדור"
+      ]
+    },
+    "kfar_giladi": {
+      "id": "kfar_giladi",
+      "hebrew_name": "כפר גלעדי",
+      "english_name": "Kfar Giladi",
+      "description": "קבוצה ליד מטולה",
+      "time_period": "1900-1921",
+      "key_features": [
+        "קבוצה",
+        "קרבה למטולה"
+      ]
+    },
+    "russia": {
+      "id": "russia",
+      "hebrew_name": "רוסיה",
+      "english_name": "Russia",
+      "description": "מקום הלידה, לפני העלייה",
+      "time_period": "1900-1904",
+      "key_features": [
+        "עיר ילץ",
+        "בית ספר עברי",
+        "חדר מתוקן"
+      ]
+    },
+    "odessa": {
+      "id": "odessa",
+      "hebrew_name": "אודיסה",
+      "english_name": "Odessa",
+      "description": "נמל אודיסה, נקודת היציאה לארץ ישראל",
+      "time_period": "1904",
+      "key_features": [
+        "נמל",
+        "אוניות",
+        "הגעה בחורף"
+      ]
+    }
+  }
+}

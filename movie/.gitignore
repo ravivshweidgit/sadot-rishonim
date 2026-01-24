@@ -1,0 +1,52 @@
+# Ignore image files (too large for git)
+*.jpg
+*.jpeg
+*.png
+*.gif
+*.bmp
+*.tiff
+
+# Ignore video files
+*.mp4
+*.avi
+*.mov
+*.mkv
+
+# Ignore model files (too large)
+*.pkl
+*.h5
+*.pt
+*.pth
+*.ckpt
+*.safetensors
+*.npy
+*.npz
+
+# Ignore output files (generated)
+output/scenes/*
+output/final/*
+!output/.gitkeep
+
+# Ignore Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Ignore virtual environments
+venv/
+env/
+ENV/
+
+# Ignore IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Keep directory structure
+!data/.gitkeep
+!output/.gitkeep
+!models/.gitkeep
