@@ -15,46 +15,63 @@
             box-sizing: border-box;
         }
 
+        html {
+            overflow-x: hidden;
+            width: 100%;
+        }
+
         body {
             font-family: 'Assistant', 'Frank Ruhl Libre', serif;
             background-color: #F5F5DC;
             color: #3E2723;
             line-height: 1.8;
             direction: rtl;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+            width: 100%;
+            box-sizing: border-box;
         }
 
         .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 2rem;
+            max-width: 100%;
+            width: 100%;
+            margin: 0;
+            padding: 1rem;
+            flex: 1;
+            box-sizing: border-box;
+            overflow-x: hidden;
         }
 
         header {
             background: linear-gradient(135deg, #556B2F 0%, #3E2723 100%);
             color: #F5F5DC;
-            padding: 3rem 2rem;
+            padding: 1rem 1.5rem;
             text-align: center;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
 
         header h1 {
-            font-size: 3rem;
+            font-size: 2.5rem;
             font-weight: 700;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.25rem;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
         }
 
         header .subtitle {
-            font-size: 1.5rem;
+            font-size: 1.1rem;
             font-weight: 400;
             opacity: 0.9;
-            margin-top: 0.5rem;
+            margin-top: 0.25rem;
         }
 
         .intro {
             background: white;
-            padding: 3rem;
-            margin: 2rem 0;
+            padding: 1rem;
+            margin: 0.5rem 0;
             border-radius: 8px;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
             border-right: 4px solid #556B2F;
@@ -62,14 +79,15 @@
 
         .intro h2 {
             color: #556B2F;
-            font-size: 2rem;
-            margin-bottom: 1rem;
+            font-size: 1.5rem;
+            margin-bottom: 0.4rem;
         }
 
         .intro p {
             font-size: 1.1rem;
-            margin-bottom: 1rem;
+            margin-bottom: 0.4rem;
             text-align: justify;
+            line-height: 1.6;
         }
 
         .dayan-connection {
@@ -85,7 +103,9 @@
         }
 
         .chapters {
-            margin: 3rem 0;
+            margin: 1.5rem 0;
+            width: 100%;
+            box-sizing: border-box;
         }
 
         .chapters h2 {
@@ -93,28 +113,94 @@
             font-size: 2rem;
             margin-bottom: 2rem;
             text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        .back-to-books {
+            background: #556B2F;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            text-decoration: none;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: background 0.3s;
+            cursor: pointer;
+            border: none;
+        }
+
+        .back-to-books:hover {
+            background: #3E2723;
         }
 
         .chapters-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 1.5rem;
-            margin-top: 2rem;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 0.75rem;
+            margin-top: 1rem;
+            width: 100%;
+            box-sizing: border-box;
+            direction: rtl;
         }
 
         .chapter-card {
             background: white;
-            padding: 2rem;
+            padding: 0.75rem;
             border-radius: 8px;
             box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
             transition: transform 0.3s, box-shadow 0.3s;
             cursor: pointer;
             border-right: 4px solid #556B2F;
+            display: flex;
+            flex-direction: row;
+            gap: 0.75rem;
+            align-items: center;
+            width: 100%;
+            box-sizing: border-box;
+            direction: rtl;
         }
 
         .chapter-card:hover {
             transform: translateY(-5px);
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .book-cover {
+            flex-shrink: 0;
+            width: 150px;
+            height: 200px;
+            border-radius: 4px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            background: #f5f5f5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .book-cover img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            border: none;
+            pointer-events: none;
+        }
+
+        .book-cover .cover-placeholder {
+            color: #8B7355;
+            font-size: 0.9rem;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .book-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
 
         .chapter-card h3 {
@@ -138,9 +224,10 @@
         footer {
             background: #3E2723;
             color: #F5F5DC;
-            padding: 2rem;
+            padding: 1rem;
             text-align: center;
-            margin-top: 4rem;
+            margin-top: auto;
+            flex-shrink: 0;
         }
 
         .btn-read {
@@ -159,15 +246,64 @@
             background: #3E2723;
         }
 
+        @media (max-width: 1400px) {
+            .chapters-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+
+        @media (max-width: 1100px) {
+            .chapters-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (max-width: 968px) {
+            .chapters-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
         @media (max-width: 768px) {
+            .container {
+                padding: 0.5rem;
+            }
+
+            header {
+                padding: 0.75rem 1rem;
+            }
+
             header h1 {
-                font-size: 2rem;
+                font-size: 1.8rem;
             }
 
             .intro {
-                padding: 1.5rem;
+                padding: 0.75rem;
+                margin: 0.25rem 0;
             }
 
+            .chapters-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .chapter-card {
+                flex-direction: column;
+                align-items: stretch;
+                padding: 0.75rem;
+            }
+
+            .book-cover {
+                width: 100%;
+                height: 200px;
+            }
+
+            footer {
+                padding: 0.75rem;
+                margin-top: 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
             .chapters-grid {
                 grid-template-columns: 1fr;
             }
@@ -178,7 +314,7 @@
     <header>
         <h1>שדות ראשונים</h1>
         <div class="subtitle">ארכיון היסטורי דיגיטלי</div>
-        <div class="subtitle" style="font-size: 1.2rem; margin-top: 1rem;">שדות ראשונים מאת יהודה מרקובסקי • בית מרקובסקי מאת רוחמה שחר</div>
+        <div class="subtitle" style="font-size: 0.95rem; margin-top: 0.5rem;">שדות ראשונים מאת יהודה מרקובסקי • בית מרקובסקי מאת רוחמה שחר</div>
     </header>
 
     <div class="container">
@@ -190,17 +326,22 @@
             <p>
                 יהודה מרקובסקי עלה ארצה כילד ב-1904, השנה בה החלה העלייה השנייה, וחי, עבד, שמר והשתתף בלא מעט אירועים מרכזיים תחת שלושה שלטונות - העות'מאני, הבריטי וכמובן הישראלי.
             </p>
-        </div>
-
-        <div class="books-selection" style="margin: 3rem 0;">
-            <h2 style="color: #556B2F; font-size: 2rem; margin-bottom: 2rem; text-align: center;">בחרו ספר</h2>
-            <div class="books-grid" id="booksGrid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem;">
-                <!-- Books will be loaded dynamically -->
+            <p>
+                הספר "בית מרקובסקי" נכתב על ידי רוחמה שחר, אחותו של יהודה מרקובסקי, ומתאר את סיפור המשפחה מנקודת מבטה.
+            </p>
+            
+            <div class="books-selection" style="margin-top: 1rem;">
+                <div class="books-grid" id="booksGrid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem;">
+                    <!-- Books will be loaded dynamically -->
+                </div>
             </div>
         </div>
 
         <div class="chapters" id="chaptersSection" style="display: none;">
-            <h2 id="chaptersTitle">פרקי הספר</h2>
+            <h2 id="chaptersTitle">
+                <button class="back-to-books" onclick="showBooksSelection()">← חזרה לספרים</button>
+                <span id="chaptersTitleText">פרקי הספר</span>
+            </h2>
             <div class="chapters-grid" id="chaptersGrid">
                 <!-- Chapters will be loaded dynamically -->
             </div>
@@ -252,10 +393,19 @@
                 card.className = 'chapter-card';
                 card.style.cursor = 'pointer';
                 card.onclick = () => selectBook(bookId);
+                
+                // Create cover image path
+                const coverPath = `books/${bookId}/pdf_pages/000.jpg`;
+                
                 card.innerHTML = `
-                    <h3>${book.name}</h3>
-                    <div class="subtitle" style="color: #8B7355; margin: 0.5rem 0;">${book.author}</div>
-                    <div class="page-number" style="margin-top: 1rem;">${book.chapters.length} פרקים</div>
+                    <div class="book-cover">
+                        <img src="${coverPath}" alt="כריכת הספר ${book.name}" onerror="this.parentElement.innerHTML='<div class=\\'cover-placeholder\\'>כריכת הספר</div>'">
+                    </div>
+                    <div class="book-content">
+                        <h3>${book.name}</h3>
+                        <div class="subtitle" style="color: #8B7355; margin: 0.5rem 0;">${book.author}</div>
+                        <div class="page-number" style="margin-top: 1rem;">${book.chapters.length} פרקים</div>
+                    </div>
                 `;
                 grid.appendChild(card);
             });
@@ -265,13 +415,28 @@
             selectedBookId = bookId;
             const book = booksConfig.books[bookId];
             
-            // Hide books selection, show chapters
-            document.getElementById('booksGrid').style.display = 'none';
-            document.querySelector('.books-selection h2').style.display = 'none';
+            // Hide header, books selection and intro, show chapters
+            document.querySelector('header').style.display = 'none';
+            document.querySelector('.books-selection').style.display = 'none';
+            document.querySelector('.intro').style.display = 'none';
             document.getElementById('chaptersSection').style.display = 'block';
-            document.getElementById('chaptersTitle').textContent = `פרקי הספר: ${book.name}`;
+            document.getElementById('chaptersTitleText').textContent = `פרקי הספר: ${book.name}`;
+            
+            // Scroll to top to see chapters
+            window.scrollTo({ top: 0, behavior: 'smooth' });
             
             renderChapters(book);
+        }
+
+        function showBooksSelection() {
+            // Show header, books selection and intro, hide chapters
+            document.querySelector('header').style.display = 'block';
+            document.querySelector('.books-selection').style.display = 'block';
+            document.querySelector('.intro').style.display = 'block';
+            document.getElementById('chaptersSection').style.display = 'none';
+            
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         function renderChapters(book) {
