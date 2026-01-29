@@ -147,14 +147,14 @@
         .reader-container {
             max-width: 1400px;
             margin: 0 auto;
-            padding: 2rem;
+            padding: 1px 2rem 2rem 2rem;
         }
 
         .reader-layout {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 2rem;
-            margin-top: 2rem;
+            margin-top: 5px;
         }
 
         .pdf-side {
@@ -173,7 +173,7 @@
             background: white;
             border-radius: 8px;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            padding: 2rem;
+            padding: 0 2rem;
             line-height: 1.1;
             font-size: 1.1rem;
             white-space: pre-wrap;
@@ -247,8 +247,8 @@
             display: flex;
             gap: 0.5rem;
             align-items: center;
-            margin-bottom: 1rem;
-            padding-bottom: 1rem;
+            margin-bottom: 0;
+            padding-bottom: 0;
             border-bottom: 2px solid #F5F5DC;
         }
 
@@ -420,6 +420,7 @@
         .text-content {
             white-space: pre-wrap;
             word-wrap: break-word;
+            margin-top: 0;
         }
 
         .text-edit {
@@ -1723,6 +1724,28 @@
             } else if (pageParam) {
                 currentPage = parseInt(pageParam);
                 loadPage(currentPage);
+            }
+        });
+
+        // Keyboard navigation: left/right arrows to navigate between pages
+        document.addEventListener('keydown', (e) => {
+            // Don't navigate if user is typing in an input field, textarea, or contenteditable
+            const activeElement = document.activeElement;
+            const isInputFocused = activeElement && (
+                activeElement.tagName === 'INPUT' ||
+                activeElement.tagName === 'TEXTAREA' ||
+                activeElement.contentEditable === 'true'
+            );
+            
+            if (isInputFocused) {
+                return; // Let user type normally
+            }
+            
+            // Right arrow (→) = previous page, Left arrow (←) = next page (RTL layout)
+            if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+                e.preventDefault();
+                const direction = e.key === 'ArrowRight' ? -1 : 1; // Right = previous, Left = next (RTL)
+                navigatePage(direction);
             }
         });
 
