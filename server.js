@@ -648,6 +648,22 @@ app.get('/reader.html', (req, res) => {
     res.sendFile(path.join(__dirname, 'reader.html'));
 });
 
+// Explicit route handlers for static JS/CSS files (fallback for Vercel)
+app.get('/chat-component.js', (req, res) => {
+    res.type('application/javascript');
+    res.sendFile(path.join(__dirname, 'chat-component.js'));
+});
+
+app.get('/chat-component.css', (req, res) => {
+    res.type('text/css');
+    res.sendFile(path.join(__dirname, 'chat-component.css'));
+});
+
+app.get('/books-config.json', (req, res) => {
+    res.type('application/json');
+    res.sendFile(path.join(__dirname, 'books-config.json'));
+});
+
 // Export app for Vercel serverless functions
 module.exports = app;
 
