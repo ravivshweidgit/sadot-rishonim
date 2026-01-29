@@ -638,6 +638,11 @@ app.post('/api/save-orig', async (req, res) => {
 // Serve book files
 app.use('/books', express.static('books'));
 
+// Explicit root route handler for Vercel (serves index.html)
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
+});
+
 // Export app for Vercel serverless functions
 module.exports = app;
 
