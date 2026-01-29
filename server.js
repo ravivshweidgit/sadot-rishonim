@@ -193,7 +193,10 @@ async function refreshTextCache() {
                                              bookId === 'beit_markovski' ? ['135.txt'] : [];
                 const txtFiles = entries.filter(entry => entry.isFile() && entry.name.endsWith('.txt') && !tableOfContentsFiles.includes(entry.name));
                 if (txtFiles.length > 0) {
-                    loadedBooks.push(`${booksConfig.books[bookId].name} (${txtFiles.length} pages)`);
+                    const bookName = bookId === 'sadot_rishonim' ? 'Shadot Rishonim' : 
+                                     bookId === 'beit_markovski' ? 'Beit Markovski' : 
+                                     booksConfig.books[bookId].name;
+                    loadedBooks.push(`${bookName} (${txtFiles.length} pages)`);
                 }
             } catch (e) {
                 // Book directory doesn't exist or has no files - skip
@@ -635,18 +638,26 @@ app.post('/api/save-orig', async (req, res) => {
 // Serve book files
 app.use('/books', express.static('books'));
 
-// Start server
-app.listen(PORT, () => {
-    console.log(`🚀 Server running on http://localhost:${PORT}`);
-    console.log(`📚 Books structure:`);
-    Object.keys(booksConfig.books).forEach(bookId => {
-        console.log(`   - ${booksConfig.books[bookId].name} (${bookId})`);
+// Export app for Vercel serverless functions
+module.exports = app;
+
+// Start server only if not in Vercel environment
+if (process.env.VERCEL !== '1') {
+    app.listen(PORT, () => {
+        console.log(`🚀 Server running on http://localhost:${PORT}`);
+        console.log(`📚 Books structure:`);
+        Object.keys(booksConfig.books).forEach(bookId => {
+            const bookName = bookId === 'sadot_rishonim' ? 'Shadot Rishonim' : 
+                             bookId === 'beit_markovski' ? 'Beit Markovski' : 
+                             booksConfig.books[bookId].name;
+            console.log(`   - ${bookName} (${bookId})`);
+        });
+        if (!GEMINI_API_KEY) {
+            console.log(`⚠️  Set GEMINI_API_KEY environment variable or create python/api_key.txt to enable AI Chat`);
+            console.log(`   Get your API key from: https://aistudio.google.com/apikey`);
+        } else {
+            console.log(`✅ Gemini API configured`);
+        }
     });
-    if (!GEMINI_API_KEY) {
-        console.log(`⚠️  Set GEMINI_API_KEY environment variable or create python/api_key.txt to enable AI Chat`);
-        console.log(`   Get your API key from: https://aistudio.google.com/apikey`);
-    } else {
-        console.log(`✅ Gemini API configured`);
-    }
-});
+}
 
