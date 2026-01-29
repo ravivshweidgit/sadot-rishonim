@@ -11,7 +11,8 @@ const PORT = process.env.PORT || 3000;
 // Middleware
 app.use(cors());
 app.use(express.json());
-app.use(express.static('.')); // Serve static files
+// Serve static files using absolute path (needed for Vercel)
+app.use(express.static(path.join(__dirname)));
 
 // Load Gemini API key from environment variable, config file, or api_key.txt (same as Python script)
 let GEMINI_API_KEY = process.env.GEMINI_API_KEY || '';
@@ -635,12 +636,16 @@ app.post('/api/save-orig', async (req, res) => {
     }
 });
 
-// Serve book files
-app.use('/books', express.static('books'));
+// Serve book files using absolute path (needed for Vercel)
+app.use('/books', express.static(path.join(__dirname, 'books')));
 
-// Explicit root route handler for Vercel (serves index.html)
+// Explicit route handlers for HTML files (needed for Vercel)
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
+});
+
+app.get('/reader.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'reader.html'));
 });
 
 // Export app for Vercel serverless functions
