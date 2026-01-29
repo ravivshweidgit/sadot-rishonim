@@ -211,9 +211,16 @@ class YehudaChat {
             let errorMessage = 'מצטער, אירעה שגיאה. אנא נסה שוב מאוחר יותר.';
             if (error.message) {
                 console.error('Error details:', error.message);
-                // Show more details in development
-                if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-                    errorMessage += `\n\nשגיאה: ${error.message}`;
+                // Show helpful error messages (especially for API key issues)
+                if (error.message.includes('GEMINI_API_KEY') || error.message.includes('AI service not configured')) {
+                    errorMessage = 'שירות ה-AI לא מוגדר. אנא ודא שמשתנה הסביבה GEMINI_API_KEY מוגדר ב-Vercel.';
+                } else if (error.message.includes('503') || error.message.includes('service not configured')) {
+                    errorMessage = 'שירות ה-AI לא זמין כרגע. אנא נסה שוב מאוחר יותר או בדוק את הגדרות השרת.';
+                } else {
+                    // Show error details in development, generic message in production
+                    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                        errorMessage += `\n\nשגיאה: ${error.message}`;
+                    }
                 }
             }
             this.addMessage('assistant', errorMessage);
